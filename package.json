@@ -12,6 +12,11 @@
       "require": "./dist/grid-listing.cjs",
       "types": "./dist/index.d.ts"
     },
+    "./vite-plugin": {
+      "import": "./dist/grid-listing.js",
+      "require": "./dist/grid-listing.cjs",
+      "types": "./dist/vite-plugin.d.ts"
+    },
     "./styles": "./dist/styles/index.css",
     "./grid.css": "./dist/styles/grid.css",
     "./variables.css": "./dist/styles/variables.css"
@@ -36,7 +41,9 @@
     "typescript": "^5.3.3",
     "vite": "^5.4.0"
   },
-  "peerDependencies": {},
+  "peerDependencies": {
+    "vite": "^5.0.0 || ^6.0.0"
+  },
   "sideEffects": [
     "**/*.css"
   ]

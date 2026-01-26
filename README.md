@@ -88,6 +88,121 @@ Override theme by setting CSS variables:
 }
 ```
 
+## Vite Plugin
+
+The package includes a Vite plugin that scans a directory for items and generates a virtual module with metadata extracted from `index.html` files.
+
+### Setup
+
+```typescript
+// vite.config.ts
+import { defineConfig } from 'vite';
+import { gridManifestPlugin } from '@metervara/grid-listing';
+
+export default defineConfig({
+  plugins: [
+    gridManifestPlugin({
+      dir: './src/projects',      // Directory to scan
+      moduleId: 'virtual:projects', // Virtual module name (default: 'virtual:grid-manifest')
+      basePath: '/',              // URL base path for href
+    }),
+  ],
+});
+```
+
+### Type Declaration
+
+Add to your `src/vite-env.d.ts` or a similar declaration file:
+
+```typescript
+declare module 'virtual:projects' {
+  import type { ManifestItem } from '@metervara/grid-listing';
+  const manifest: { items: ManifestItem[] };
+  export default manifest;
+}
+```
+
+### Usage
+
+```typescript
+import manifest from 'virtual:projects';
+import { GridList } from '@metervara/grid-listing';
+
+const grid = new GridList({ gridEl: document.querySelector('.grid-listing')! });
+grid.init();
+grid.setItems(manifest.items.map(item => ({
+  title: item.title || item.name,
+  description: item.description,
+  tags: item.tags,
+  thumbnails: item.thumbnail ? [`/${item.thumbnail}`] : [],
+  href: item.href,
+  group: item.group,
+})));
+```
+
+### Directory Structure
+
+The plugin scans for subdirectories containing `index.html`:
+
+```
+src/projects/
+├── project-a/
+│   ├── index.html      # Required
+│   └── thumbnail.jpg   # Optional
+├── category/
+│   └── project-b/
+│       ├── index.html
+│       └── thumbnail.png
+└── _hidden-project/    # Ignored (starts with _)
+    └── index.html
+```
+
+### Metadata Extraction
+
+The plugin extracts metadata from each `index.html` using standard HTML head tags:
+
+| Field | Source |
+|-------|--------|
+| title | `<title>` |
+| description | `<meta name="description">` |
+| tags | `<meta name="tags">` (comma-separated) |
+| thumbnail | `thumbnail.{png,jpg,jpeg,webp,gif,mp4,webm}` in same directory |
+
+**Example HTML:**
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Project Name</title>
+    <meta name="description" content="A brief description of the project">
+    <meta name="tags" content="webgl, shader, animation">
+  </head>
+  <body>
+    <!-- content -->
+  </body>
+</html>
+```
+
+### Plugin Options
+
+```typescript
+gridManifestPlugin({
+  dir: string,                    // Required: directory to scan
+  moduleId?: string,              // Virtual module ID (default: 'virtual:grid-manifest')
+  basePath?: string,              // URL base for href (default: '/')
+  includeHidden?: boolean,        // Include _prefixed dirs (default: false)
+  thumbnailPatterns?: string[],   // Custom thumbnail filenames
+});
+```
+
+### Hot Reload
+
+In dev mode, the plugin watches the source directory and triggers a full reload when:
+- `index.html` files are modified
+- Thumbnail files change
+- Directories are added or removed
+
 ## Configuration
 
 ```typescript

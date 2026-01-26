@@ -11,6 +11,8 @@ export default defineConfig({
       formats: ['es', 'cjs'],
     },
     rollupOptions: {
+      // Externalize Node.js builtins and vite for the plugin
+      external: ['fs', 'path', 'vite'],
       output: {
         assetFileNames: (assetInfo) => {
           if (assetInfo.name?.endsWith('.css')) {
