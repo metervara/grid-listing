@@ -1,70 +1,67 @@
-var C = Object.defineProperty;
-var L = (r, t, e) => t in r ? C(r, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : r[t] = e;
-var h = (r, t, e) => L(r, typeof t != "symbol" ? t + "" : t, e);
-import { existsSync as I, watch as P, readFileSync as k, readdirSync as $ } from "fs";
-import { relative as B, basename as F, join as x, posix as A } from "path";
-const N = (r, t, e, s, i, a) => {
-  const o = Math.max(1, Math.ceil((r + i) / (e * a + i))), n = Math.max(o, Math.floor((r + i) / (e / a + i))), l = Math.max(1, Math.ceil((t + i) / (s * a + i))), d = Math.max(l, Math.floor((t + i) / (s / a + i))), c = i > 0 ? Math.floor(r / i) + 1 : Number.POSITIVE_INFINITY, w = i > 0 ? Math.floor(t / i) + 1 : Number.POSITIVE_INFINITY, b = Math.max(1, Math.floor(r)), S = Math.max(1, Math.floor(t)), g = Math.min(n, c, b), y = Math.min(d, w, S);
-  return { cMin: o, cMax: g, rMin: l, rMax: y };
-}, O = (r, t, e, s, i, a = {}) => {
-  const o = a.weightSize ?? 1, n = a.weightAR ?? 1, l = a.alpha ?? 1.5, d = e / s, c = N(r, t, e, s, i, l), w = 1, b = 1, S = Math.min(c.cMax, a.maxCols ?? Number.POSITIVE_INFINITY), g = Math.min(c.rMax, a.maxRows ?? Number.POSITIVE_INFINITY);
-  let y = null;
-  const T = (u, m) => {
-    if (u < w || m < b || u > S || m > g) return;
-    const M = r - (u - 1) * i, E = t - (m - 1) * i;
-    if (M <= 0 || E <= 0) return;
-    const f = M / u, p = E / m;
-    if (a.integerBlockSize && (!Number.isInteger(f) || !Number.isInteger(p)) || f < e / l || f > e * l || p < s / l || p > s * l) return;
-    const v = Math.hypot((f - e) / e, (p - s) / s), D = Math.abs(f / p - d) / d, R = o * v + n * D;
-    (!y || R < y.score) && (y = { width: f, height: p, cols: u, rows: m, score: R, sizeError: v, arError: D });
+import { existsSync as T, watch as z, readFileSync as C, readdirSync as L } from "fs";
+import { relative as P, basename as k, join as I, posix as $ } from "path";
+const B = (n, t, e, s, i, a) => {
+  const o = Math.max(1, Math.ceil((n + i) / (e * a + i))), r = Math.max(o, Math.floor((n + i) / (e / a + i))), l = Math.max(1, Math.ceil((t + i) / (s * a + i))), c = Math.max(l, Math.floor((t + i) / (s / a + i))), h = i > 0 ? Math.floor(n / i) + 1 : Number.POSITIVE_INFINITY, M = i > 0 ? Math.floor(t / i) + 1 : Number.POSITIVE_INFINITY, S = Math.max(1, Math.floor(n)), w = Math.max(1, Math.floor(t)), p = Math.min(r, h, S), g = Math.min(c, M, w);
+  return { cMin: o, cMax: p, rMin: l, rMax: g };
+}, F = (n, t, e, s, i, a = {}) => {
+  const o = a.weightSize ?? 1, r = a.weightAR ?? 1, l = a.alpha ?? 1.5, c = e / s, h = B(n, t, e, s, i, l), M = 1, S = 1, w = Math.min(h.cMax, a.maxCols ?? Number.POSITIVE_INFINITY), p = Math.min(h.rMax, a.maxRows ?? Number.POSITIVE_INFINITY);
+  let g = null;
+  const v = (d, u) => {
+    if (d < M || u < S || d > w || u > p) return;
+    const y = n - (d - 1) * i, b = t - (u - 1) * i;
+    if (y <= 0 || b <= 0) return;
+    const m = y / d, f = b / u;
+    if (a.integerBlockSize && (!Number.isInteger(m) || !Number.isInteger(f)) || m < e / l || m > e * l || f < s / l || f > s * l) return;
+    const E = Math.hypot((m - e) / e, (f - s) / s), x = Math.abs(m / f - c) / c, D = o * E + r * x;
+    (!g || D < g.score) && (g = { width: m, height: f, cols: d, rows: u, score: D, sizeError: E, arError: x });
   };
-  for (let u = c.cMin; u <= S; u++) {
-    const m = r - (u - 1) * i;
-    if (m <= 0) break;
-    const M = m / u;
-    if (M < e / l || M > e * l) continue;
-    const E = (t + i) / (i + M / d), f = /* @__PURE__ */ new Set();
-    for (let p = -2; p <= 2; p++) {
-      const v = Math.round(E + p);
-      v >= b && v <= g && f.add(v);
+  for (let d = h.cMin; d <= w; d++) {
+    const u = n - (d - 1) * i;
+    if (u <= 0) break;
+    const y = u / d;
+    if (y < e / l || y > e * l) continue;
+    const b = (t + i) / (i + y / c), m = /* @__PURE__ */ new Set();
+    for (let f = -2; f <= 2; f++) {
+      const E = Math.round(b + f);
+      E >= S && E <= p && m.add(E);
     }
-    f.add(c.rMin), f.add(g);
-    for (const p of f) T(u, p);
+    m.add(h.rMin), m.add(p);
+    for (const f of m) v(d, f);
   }
-  if (!y)
-    for (let u = c.cMin; u <= S; u++)
-      for (let m = c.rMin; m <= g; m++) T(u, m);
-  if (!y)
+  if (!g)
+    for (let d = h.cMin; d <= w; d++)
+      for (let u = h.rMin; u <= p; u++) v(d, u);
+  if (!g)
     throw new Error("No feasible grid found with given settings/tolerance.");
-  return y;
-}, J = (r, t, e, s, i) => {
-  const a = Math.max(1, Math.round(r / e)), o = Math.max(1, Math.round(t / s)), n = r - i * Math.max(0, a - 1), l = t - i * Math.max(0, o - 1), d = n / a, c = l / o;
-  return { width: d, height: c, cols: a, rows: o };
+  return g;
+}, j = (n, t, e, s, i) => {
+  const a = Math.max(1, Math.round(n / e)), o = Math.max(1, Math.round(t / s)), r = n - i * Math.max(0, a - 1), l = t - i * Math.max(0, o - 1), c = r / a, h = l / o;
+  return { width: c, height: h, cols: a, rows: o };
 };
-class K {
+class q {
+  gridEl;
+  headerEl;
+  measureViewportEl;
+  desiredBlockSize = { width: 400, height: 300 };
+  gap = 10;
+  fadeOutDurationMs = 200;
+  staggerStepMs = 75;
+  fadeStaggerStepMs = 50;
+  initialResizeDelayFrames = 2;
+  initialScrollDelayMs = 1750;
+  filterScrollDelayMs = 400;
+  items = [];
+  allTags = [];
+  activeTags = /* @__PURE__ */ new Set();
+  tagChipsEl = null;
+  hasDoneInitialScrollUpdate = !1;
+  hasDoneInitialResize = !1;
+  resizeDebounceTimer = null;
+  fadeOutTimer = null;
+  headerZIndexRaised = !1;
+  state;
+  headerRowIndex = 0;
   constructor(t) {
-    h(this, "gridEl");
-    h(this, "headerEl");
-    h(this, "measureViewportEl");
-    h(this, "desiredBlockSize", { width: 400, height: 300 });
-    h(this, "gap", 10);
-    h(this, "fadeOutDurationMs", 200);
-    h(this, "staggerStepMs", 75);
-    h(this, "fadeStaggerStepMs", 50);
-    h(this, "initialResizeDelayFrames", 2);
-    h(this, "initialScrollDelayMs", 1750);
-    h(this, "filterScrollDelayMs", 400);
-    h(this, "items", []);
-    h(this, "allTags", []);
-    h(this, "activeTags", /* @__PURE__ */ new Set());
-    h(this, "tagChipsEl", null);
-    h(this, "hasDoneInitialScrollUpdate", !1);
-    h(this, "hasDoneInitialResize", !1);
-    h(this, "resizeDebounceTimer", null);
-    h(this, "fadeOutTimer", null);
-    h(this, "headerZIndexRaised", !1);
-    h(this, "state");
-    h(this, "headerRowIndex", 0);
     this.gridEl = t.gridEl, this.headerEl = t.headerEl ?? null, this.measureViewportEl = t.measureViewportEl ?? null, t.desiredBlockSize && (this.desiredBlockSize = t.desiredBlockSize), typeof t.gap == "number" && (this.gap = t.gap), typeof t.fadeOutDurationMs == "number" && (this.fadeOutDurationMs = t.fadeOutDurationMs), typeof t.staggerStepMs == "number" && (this.staggerStepMs = t.staggerStepMs), typeof t.fadeStaggerStepMs == "number" && (this.fadeStaggerStepMs = t.fadeStaggerStepMs), typeof t.initialResizeDelayFrames == "number" && (this.initialResizeDelayFrames = t.initialResizeDelayFrames), typeof t.initialScrollDelayMs == "number" && (this.initialScrollDelayMs = t.initialScrollDelayMs), typeof t.filterScrollDelayMs == "number" && (this.filterScrollDelayMs = t.filterScrollDelayMs);
   }
   setItems(t) {
@@ -93,7 +90,7 @@ class K {
     requestAnimationFrame(() => this.delayFrames(t - 1, e));
   }
   setLayout(t, e) {
-    this.state = O(t, e, this.desiredBlockSize.width, this.desiredBlockSize.height, this.gap), this.headerRowIndex = 1;
+    this.state = F(t, e, this.desiredBlockSize.width, this.desiredBlockSize.height, this.gap), this.headerRowIndex = 1;
     const s = document.documentElement.style;
     s.setProperty("--block-width", `${this.state.width}px`), s.setProperty("--block-height", `${this.state.height}px`), s.setProperty("--cols", String(this.state.cols)), s.setProperty("--rows", String(this.state.rows)), s.setProperty("--block-gap", `${this.gap}px`), s.setProperty("--header-row", `${this.headerRowIndex}`);
   }
@@ -102,14 +99,14 @@ class K {
     this.gridEl.innerHTML = "";
     const t = document.createElement("div");
     t.className = "row-spacer col-0", this.gridEl.appendChild(t), this.items.filter((s) => this.activeTags.size === 0 ? !0 : (s.tags || []).some((a) => this.activeTags.has(a))).forEach((s, i) => {
-      const a = Math.floor(i / this.state.cols), o = i % this.state.cols, n = this.createCard(s);
-      n.dataset.row = `${a}`, n.dataset.column = `${o}`, n.classList.add(`row-${a}`), n.classList.add(`col-${o}`);
-      const c = (a % 2 === 0 ? o : this.state.cols - 1 - o) * this.staggerStepMs, w = i * this.fadeStaggerStepMs;
-      n.style.transitionDelay = `${c}ms`, n.style.setProperty("--fade-delay", `${w}ms`), n.classList.add("fade-in"), this.gridEl.appendChild(n);
+      const a = Math.floor(i / this.state.cols), o = i % this.state.cols, r = this.createCard(s);
+      r.dataset.row = `${a}`, r.dataset.column = `${o}`, r.classList.add(`row-${a}`), r.classList.add(`col-${o}`);
+      const h = (a % 2 === 0 ? o : this.state.cols - 1 - o) * this.staggerStepMs, M = i * this.fadeStaggerStepMs;
+      r.style.transitionDelay = `${h}ms`, r.style.setProperty("--fade-delay", `${M}ms`), r.classList.add("fade-in"), this.gridEl.appendChild(r);
     });
   }
   createCard(t) {
-    const e = t.title, i = (Array.isArray(t.thumbnails) ? t.thumbnails : [])[0], a = (t.tags || []).sort((n, l) => n.localeCompare(l)), o = document.createElement("div");
+    const e = t.title, i = (Array.isArray(t.thumbnails) ? t.thumbnails : [])[0], a = (t.tags || []).sort((r, l) => r.localeCompare(l)), o = document.createElement("div");
     return o.className = "block", o.innerHTML = `
       ${i ? `<div class="media"><img class="thumb" src="${i}" alt="${e}"></div>` : ""}
       <div class="content block-border">
@@ -117,7 +114,7 @@ class K {
           <h3>${e}</h3>
         </div>
         <div class="tags">
-          ${a.map((n) => `<button class="tag${this.activeTags.has(n) ? " active" : ""}" data-tag="${n}">${n}</button>`).join("")}
+          ${a.map((r) => `<button class="tag${this.activeTags.has(r) ? " active" : ""}" data-tag="${r}">${r}</button>`).join("")}
         </div>
       </div>
       <svg class="checker-border" xmlns="http://www.w3.org/2000/svg">
@@ -126,11 +123,11 @@ class K {
       </svg>
     `, t.href && o.addEventListener("click", () => {
       window.location.href = t.href;
-    }), o.querySelectorAll(".tag").forEach((n) => {
-      n.addEventListener("click", (l) => {
+    }), o.querySelectorAll(".tag").forEach((r) => {
+      r.addEventListener("click", (l) => {
         l.preventDefault(), l.stopPropagation();
-        const d = n.getAttribute("data-tag");
-        d && this.toggleTag(d);
+        const c = r.getAttribute("data-tag");
+        c && this.toggleTag(c);
       });
     }), o;
   }
@@ -141,8 +138,7 @@ class K {
     this.updateAboveHeaderClasses(), this.hasDoneInitialScrollUpdate || this.scheduleRaiseHeaderZIndexAfterStagger(), this.hasDoneInitialScrollUpdate = !0;
   }
   onResizeImmediate() {
-    var e;
-    const t = (e = this.measureViewportEl) == null ? void 0 : e.getBoundingClientRect();
+    const t = this.measureViewportEl?.getBoundingClientRect();
     if (!t) {
       console.warn("[grid] measureViewport element not found");
       return;
@@ -150,8 +146,7 @@ class K {
     this.setLayout(t.width, t.height), this.rebuildGrid(), this.hasDoneInitialScrollUpdate && this.updateAboveHeaderClasses(), this.gridEl && this.gridEl.scrollHeight > this.gridEl.clientHeight && (this.setLayout(this.gridEl.clientWidth, t.height), this.rebuildGrid(), this.hasDoneInitialScrollUpdate && this.updateAboveHeaderClasses()), this.hasDoneInitialResize || (this.hasDoneInitialResize = !0, document.body.classList.add("layout-ready"));
   }
   onWindowResize() {
-    var s;
-    const t = (s = this.measureViewportEl) == null ? void 0 : s.getBoundingClientRect();
+    const t = this.measureViewportEl?.getBoundingClientRect();
     if (!t) return;
     this.setLayout(t.width, t.height), this.gridEl.innerHTML = "";
     const e = document.createElement("div");
@@ -181,8 +176,8 @@ class K {
       return Number.isFinite(a) ? a : 0;
     };
     t.forEach((s) => {
-      const i = getComputedStyle(s), a = i.transitionDelay.split(",").map((l) => e(l)), o = i.transitionDuration.split(",").map((l) => e(l)), n = Math.max(a.length, o.length);
-      for (let l = 0; l < n; l++)
+      const i = getComputedStyle(s), a = i.transitionDelay.split(",").map((l) => e(l)), o = i.transitionDuration.split(",").map((l) => e(l)), r = Math.max(a.length, o.length);
+      for (let l = 0; l < r; l++)
         a[l % a.length], o[l % o.length];
     });
   }
@@ -209,8 +204,8 @@ class K {
     this.fadeOutTimer !== null && (window.clearTimeout(this.fadeOutTimer), this.fadeOutTimer = null);
     let s = 0;
     e.forEach((a) => {
-      const o = parseInt(a.dataset.row || "0", 10), n = parseInt(a.dataset.column || "0", 10), c = (o % 2 === 0 ? n : this.state.cols - 1 - n) * this.fadeStaggerStepMs;
-      a.style.setProperty("--fade-delay", `${c}ms`), a.classList.add("fade-out"), c > s && (s = c);
+      const o = parseInt(a.dataset.row || "0", 10), r = parseInt(a.dataset.column || "0", 10), h = (o % 2 === 0 ? r : this.state.cols - 1 - r) * this.fadeStaggerStepMs;
+      a.style.setProperty("--fade-delay", `${h}ms`), a.classList.add("fade-out"), h > s && (s = h);
     });
     const i = s + this.fadeOutDurationMs + 20;
     this.fadeOutTimer = window.setTimeout(() => {
@@ -231,7 +226,7 @@ class K {
     });
   }
 }
-const U = [
+const A = [
   "thumbnail.png",
   "thumbnail.jpg",
   "thumbnail.jpeg",
@@ -240,62 +235,62 @@ const U = [
   "thumbnail.mp4",
   "thumbnail.webm"
 ];
-function z(r, t = r) {
+function R(n, t = n) {
   const e = [];
-  if (!I(r)) return e;
-  const s = $(r, { withFileTypes: !0 });
+  if (!T(n)) return e;
+  const s = L(n, { withFileTypes: !0 });
   for (const i of s) {
     if (!i.isDirectory()) continue;
-    const a = x(r, i.name), o = x(a, "index.html");
-    I(o) && e.push(a), e.push(...z(a, t));
+    const a = I(n, i.name), o = I(a, "index.html");
+    T(o) && e.push(a), e.push(...R(a, t));
   }
   return e;
 }
-function V(r) {
-  const t = r.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+function N(n) {
+  const t = n.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
   return t ? t[1].trim() : void 0;
 }
-function G(r) {
-  const t = r.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']*)["'][^>]*>/i) || r.match(/<meta[^>]*content=["']([^"']*)["'][^>]*name=["']description["'][^>]*>/i);
+function O(n) {
+  const t = n.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']*)["'][^>]*>/i) || n.match(/<meta[^>]*content=["']([^"']*)["'][^>]*name=["']description["'][^>]*>/i);
   return t ? t[1].trim() : void 0;
 }
-function H(r) {
-  const t = r.match(/<meta[^>]*name=["']tags["'][^>]*content=["']([^"']*)["'][^>]*>/i) || r.match(/<meta[^>]*content=["']([^"']*)["'][^>]*name=["']tags["'][^>]*>/i);
+function U(n) {
+  const t = n.match(/<meta[^>]*name=["']tags["'][^>]*content=["']([^"']*)["'][^>]*>/i) || n.match(/<meta[^>]*content=["']([^"']*)["'][^>]*name=["']tags["'][^>]*>/i);
   return t ? t[1].split(",").map((e) => e.trim()).filter(Boolean).sort((e, s) => e.localeCompare(s)) : [];
 }
-function _(r, t) {
+function V(n, t) {
   for (const e of t) {
-    const s = x(r, e);
-    if (I(s))
+    const s = I(n, e);
+    if (T(s))
       return e;
   }
 }
-function j(r, t) {
+function G(n, t) {
   const {
     basePath: e = "/",
     includeHidden: s = !1,
-    thumbnailPatterns: i = U
-  } = t, a = z(r), o = [];
-  for (const n of a) {
-    const l = B(r, n), d = F(n), c = d.startsWith("_");
-    if (c && !s) continue;
-    const w = l.split(/[/\\]/), b = w.length > 1 ? w[0] : "misc", S = x(n, "index.html"), g = k(S, "utf-8"), y = V(g), T = G(g), u = H(g), m = _(n, i), M = l.split(/[/\\]/).join(A.sep), E = `${e}${M}/`.replace(/\/+/g, "/"), f = m ? `${M}/${m}`.replace(/\\/g, "/") : void 0;
+    thumbnailPatterns: i = A
+  } = t, a = R(n), o = [];
+  for (const r of a) {
+    const l = P(n, r), c = k(r), h = c.startsWith("_");
+    if (h && !s) continue;
+    const M = l.split(/[/\\]/), S = M.length > 1 ? M[0] : "misc", w = I(r, "index.html"), p = C(w, "utf-8"), g = N(p), v = O(p), d = U(p), u = V(r, i), y = l.split(/[/\\]/).join($.sep), b = `${e}${y}/`.replace(/\/+/g, "/"), m = u ? `${y}/${u}`.replace(/\\/g, "/") : void 0;
     o.push({
-      path: M,
-      name: d,
-      group: b,
-      title: y,
-      description: T,
-      tags: u.length > 0 ? u : void 0,
-      thumbnail: f,
-      href: E,
-      hidden: c
+      path: y,
+      name: c,
+      group: S,
+      title: g,
+      description: v,
+      tags: d.length > 0 ? d : void 0,
+      thumbnail: m,
+      href: b,
+      hidden: h
     });
   }
-  return o.sort((n, l) => n.path.localeCompare(l.path)), o;
+  return o.sort((r, l) => r.path.localeCompare(l.path)), o;
 }
-function Q(r) {
-  const t = r.moduleId || "virtual:grid-manifest", e = "\0" + t;
+function Z(n) {
+  const t = n.moduleId || "virtual:grid-manifest", e = "\0" + t;
   let s = null, i = null;
   return {
     name: "grid-manifest",
@@ -305,16 +300,16 @@ function Q(r) {
     },
     load(a) {
       if (a === e) {
-        const o = j(r.dir, r);
+        const o = G(n.dir, n);
         return `export default ${JSON.stringify({ items: o }, null, 2)};`;
       }
     },
     configureServer(a) {
-      i = a, I(r.dir) && (s = P(r.dir, { recursive: !0 }, (o, n) => {
-        if (!n) return;
-        if (n.endsWith("index.html") || n.includes("thumbnail") || o === "rename") {
-          const d = i == null ? void 0 : i.moduleGraph.getModuleById(e);
-          d && (i == null || i.moduleGraph.invalidateModule(d), i == null || i.ws.send({
+      i = a, T(n.dir) && (s = z(n.dir, { recursive: !0 }, (o, r) => {
+        if (!r) return;
+        if (r.endsWith("index.html") || r.includes("thumbnail") || o === "rename") {
+          const c = i?.moduleGraph.getModuleById(e);
+          c && (i?.moduleGraph.invalidateModule(c), i?.ws.send({
             type: "full-reload",
             path: "*"
           }));
@@ -327,8 +322,8 @@ function Q(r) {
   };
 }
 export {
-  K as GridList,
-  O as findBestBlockSize,
-  J as findNaiveBlockSize,
-  Q as gridManifestPlugin
+  q as GridList,
+  F as findBestBlockSize,
+  j as findNaiveBlockSize,
+  Z as gridManifestPlugin
 };

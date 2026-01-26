@@ -8,14 +8,14 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/grid-listing.js",
-      "require": "./dist/grid-listing.cjs",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/grid-listing.cjs"
     },
     "./vite-plugin": {
+      "types": "./dist/vite-plugin.d.ts",
       "import": "./dist/grid-listing.js",
-      "require": "./dist/grid-listing.cjs",
-      "types": "./dist/vite-plugin.d.ts"
+      "require": "./dist/grid-listing.cjs"
     },
     "./styles": "./dist/styles/index.css",
     "./grid.css": "./dist/styles/grid.css",
@@ -38,11 +38,8 @@
   "author": "Metervara",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^5.3.3",
-    "vite": "^5.4.0"
-  },
-  "peerDependencies": {
-    "vite": "^5.0.0 || ^6.0.0"
+    "typescript": "^5.9.3",
+    "vite": "^7.1.10"
   },
   "sideEffects": [
     "**/*.css"
