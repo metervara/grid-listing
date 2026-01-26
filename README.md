@@ -5,7 +5,7 @@ Responsive grid listing component with tag filtering and staggered animations.
 ## Installation
 
 ```bash
-npm install @metervara/grid-listing
+npm install github:metervara/grid-listing#v0.1.0
 ```
 
 ## Usage
@@ -105,6 +105,19 @@ const grid = new GridList({
   filterScrollDelayMs: 400,
 });
 ```
+
+## Releasing
+
+1. Make your changes
+2. Build the package: `npm run build`
+3. Bump version in `package.json`
+4. Commit changes (including `dist/`)
+5. Tag and push:
+   ```bash
+   git tag v0.x.x
+   git push origin main --tags
+   ```
+6. Update consumers to use the new tag
 
 ## License
 
