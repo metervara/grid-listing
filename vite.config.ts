@@ -5,9 +5,10 @@ import { copyFileSync, mkdirSync, existsSync } from 'fs';
 export default defineConfig({
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
-      name: 'GridListing',
-      fileName: 'grid-listing',
+      entry: {
+        'grid-listing': resolve(__dirname, 'src/index.ts'),
+        'vite-plugin': resolve(__dirname, 'src/vite-plugin.ts'),
+      },
       formats: ['es', 'cjs'],
     },
     rollupOptions: {

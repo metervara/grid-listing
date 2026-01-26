@@ -1,6 +1,6 @@
 {
   "name": "@metervara/grid-listing",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Responsive grid listing component with tag filtering and staggered animations",
   "type": "module",
   "main": "./dist/grid-listing.cjs",
@@ -14,8 +14,8 @@
     },
     "./vite-plugin": {
       "types": "./dist/vite-plugin.d.ts",
-      "import": "./dist/grid-listing.js",
-      "require": "./dist/grid-listing.cjs"
+      "import": "./dist/vite-plugin.js",
+      "require": "./dist/vite-plugin.cjs"
     },
     "./styles": "./dist/styles/index.css",
     "./grid.css": "./dist/styles/grid.css",
