@@ -178,8 +178,15 @@ function buildManifest(
     });
   }
 
-  // Sort by path
-  items.sort((a, b) => a.path.localeCompare(b.path));
+  // Sort by path (numeric if paths are numbers, otherwise alphabetical)
+  items.sort((a, b) => {
+    const aNum = parseInt(a.name, 10);
+    const bNum = parseInt(b.name, 10);
+    if (!isNaN(aNum) && !isNaN(bNum)) {
+      return aNum - bNum;
+    }
+    return a.path.localeCompare(b.path);
+  });
 
   return items;
 }
