@@ -1,0 +1,50 @@
+/**
+ * Default Metervara theme variables
+ * These can be overridden by defining your own CSS variables after importing this file
+ */
+:root {
+  /* easing & durations (CSS-owned; JS only sets fade-out) */
+  --ease: cubic-bezier(0.3,0,0.7,1);
+  --duration: 300ms;
+  --hover-transition-duration: 0ms;
+  --fade-in-duration: 250ms;
+  --fade-out-duration: 200ms;
+
+  /* visuals */
+  --block-border-color: hsl(30, 100%, 60%); /* bright orange */
+  --block-background-color: hsl(240, 73%, 47%);
+
+  --background-color: hsl(0, 0%, 0%); /* deep black */
+  --grid-color-vertical: hsl(200, 80%, 50%); /* sky blue */
+  --grid-color-horizontal: hsl(330, 90%, 65%); /* hot pink */
+
+  --text-color: hsl(50, 80%, 90%); /* pale yellow/cream */
+  --header-sub-color: hsl(180, 60%, 70%); /* light aqua/mint */
+  --header-main-color: hsl(330, 90%, 70%); /* hot pink/magenta */
+  --default-font-weight: 400;
+
+  --tag-text-color: hsl(50, 80%, 90%); /* pale yellow/cream */
+  --tag-background-color: hsl(240, 73%, 47%); /* deep blue/indigo */
+
+  --tag-active-background-color: var(--header-sub-color);
+  --tag-active-text-color: hsl(0, 0%, 0%); /* black for contrast */
+
+  --tag-hover-background-color: hsl(330, 90%, 70%); /* hot pink/magenta */
+  --tag-hover-text-color: hsl(50, 80%, 90%); /* pale yellow/cream */
+
+  --tag-header-text-color: hsl(50, 80%, 90%); /* pale yellow/cream */
+  --tag-header-background-color: hsl(270, 92%, 53%);
+
+  --tag-header-active-background-color: var(--header-sub-color);
+  --tag-header-active-text-color: hsl(0, 0%, 0%); /* black for contrast */
+
+  --tag-header-hover-background-color: hsl(330, 90%, 70%); /* hot pink/magenta */
+  --tag-header-hover-text-color: hsl(50, 80%, 90%); /* pale yellow/cream */
+
+  /* dashed border animation */
+  --border: 10px;   /* border thickness */
+  --cell: 10px;     /* checker size (dash length) */
+  --speed: 500ms;   /* hover animation duration */
+  --dash-color-1: #000;
+  --dash-color-2: #fff;
+}

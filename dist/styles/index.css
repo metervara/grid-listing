@@ -1,0 +1,3 @@
+/* Combined styles: layout + default theme */
+@import './variables.css';
+@import './grid.css';

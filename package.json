@@ -1,0 +1,43 @@
+{
+  "name": "@metervara/grid-listing",
+  "version": "0.1.0",
+  "description": "Responsive grid listing component with tag filtering and staggered animations",
+  "type": "module",
+  "main": "./dist/grid-listing.cjs",
+  "module": "./dist/grid-listing.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/grid-listing.js",
+      "require": "./dist/grid-listing.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./styles": "./dist/styles/index.css",
+    "./grid.css": "./dist/styles/grid.css",
+    "./variables.css": "./dist/styles/variables.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && npm run build:types",
+    "build:types": "tsc --emitDeclarationOnly --outDir dist"
+  },
+  "keywords": [
+    "grid",
+    "listing",
+    "responsive",
+    "animation"
+  ],
+  "author": "Metervara",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "vite": "^5.4.0"
+  },
+  "peerDependencies": {},
+  "sideEffects": [
+    "**/*.css"
+  ]
+}
