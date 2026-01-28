@@ -83,6 +83,13 @@
   overflow: hidden;
 }
 
+.grid-listing > .snap-block {
+  position: absolute;
+  width: 0px;
+  height: var(--block-height);
+  scroll-snap-align: start;
+}
+
 /* Full-bleed media fills the card ignoring padding */
 .grid-listing > .block .media {
   position: absolute;
@@ -133,9 +140,11 @@
   align-content: flex-start;
 }
 
+/*
 .col-0 {
   scroll-snap-align: start;
 }
+*/
 
 .above-header {
   transform: translateY(calc(-1 * (var(--block-height) + var(--block-gap))));

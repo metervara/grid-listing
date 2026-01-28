@@ -1,40 +1,40 @@
-const D = (d, t, e, s, i, a) => {
-  const l = Math.max(1, Math.ceil((d + i) / (e * a + i))), r = Math.max(l, Math.floor((d + i) / (e / a + i))), o = Math.max(1, Math.ceil((t + i) / (s * a + i))), c = Math.max(o, Math.floor((t + i) / (s / a + i))), n = i > 0 ? Math.floor(d / i) + 1 : Number.POSITIVE_INFINITY, w = i > 0 ? Math.floor(t / i) + 1 : Number.POSITIVE_INFINITY, S = Math.max(1, Math.floor(d)), E = Math.max(1, Math.floor(t)), p = Math.min(r, n, S), g = Math.min(c, w, E);
-  return { cMin: l, cMax: p, rMin: o, rMax: g };
-}, x = (d, t, e, s, i, a = {}) => {
-  const l = a.weightSize ?? 1, r = a.weightAR ?? 1, o = a.alpha ?? 1.5, c = e / s, n = D(d, t, e, s, i, o), w = 1, S = 1, E = Math.min(n.cMax, a.maxCols ?? Number.POSITIVE_INFINITY), p = Math.min(n.rMax, a.maxRows ?? Number.POSITIVE_INFINITY);
-  let g = null;
+const x = (c, t, e, i, s, a) => {
+  const o = Math.max(1, Math.ceil((c + s) / (e * a + s))), l = Math.max(o, Math.floor((c + s) / (e / a + s))), r = Math.max(1, Math.ceil((t + s) / (i * a + s))), d = Math.max(r, Math.floor((t + s) / (i / a + s))), n = s > 0 ? Math.floor(c / s) + 1 : Number.POSITIVE_INFINITY, E = s > 0 ? Math.floor(t / s) + 1 : Number.POSITIVE_INFINITY, f = Math.max(1, Math.floor(c)), S = Math.max(1, Math.floor(t)), y = Math.min(l, n, f), p = Math.min(d, E, S);
+  return { cMin: o, cMax: y, rMin: r, rMax: p };
+}, D = (c, t, e, i, s, a = {}) => {
+  const o = a.weightSize ?? 1, l = a.weightAR ?? 1, r = a.alpha ?? 1.5, d = e / i, n = x(c, t, e, i, s, r), E = 1, f = 1, S = Math.min(n.cMax, a.maxCols ?? Number.POSITIVE_INFINITY), y = Math.min(n.rMax, a.maxRows ?? Number.POSITIVE_INFINITY);
+  let p = null;
   const v = (h, u) => {
-    if (h < w || u < S || h > E || u > p) return;
-    const y = d - (h - 1) * i, b = t - (u - 1) * i;
-    if (y <= 0 || b <= 0) return;
-    const f = y / h, m = b / u;
-    if (a.integerBlockSize && (!Number.isInteger(f) || !Number.isInteger(m)) || f < e / o || f > e * o || m < s / o || m > s * o) return;
-    const M = Math.hypot((f - e) / e, (m - s) / s), T = Math.abs(f / m - c) / c, I = l * M + r * T;
-    (!g || I < g.score) && (g = { width: f, height: m, cols: h, rows: u, score: I, sizeError: M, arError: T });
+    if (h < E || u < f || h > S || u > y) return;
+    const M = c - (h - 1) * s, b = t - (u - 1) * s;
+    if (M <= 0 || b <= 0) return;
+    const g = M / h, m = b / u;
+    if (a.integerBlockSize && (!Number.isInteger(g) || !Number.isInteger(m)) || g < e / r || g > e * r || m < i / r || m > i * r) return;
+    const w = Math.hypot((g - e) / e, (m - i) / i), T = Math.abs(g / m - d) / d, I = o * w + l * T;
+    (!p || I < p.score) && (p = { width: g, height: m, cols: h, rows: u, score: I, sizeError: w, arError: T });
   };
-  for (let h = n.cMin; h <= E; h++) {
-    const u = d - (h - 1) * i;
+  for (let h = n.cMin; h <= S; h++) {
+    const u = c - (h - 1) * s;
     if (u <= 0) break;
-    const y = u / h;
-    if (y < e / o || y > e * o) continue;
-    const b = (t + i) / (i + y / c), f = /* @__PURE__ */ new Set();
+    const M = u / h;
+    if (M < e / r || M > e * r) continue;
+    const b = (t + s) / (s + M / d), g = /* @__PURE__ */ new Set();
     for (let m = -2; m <= 2; m++) {
-      const M = Math.round(b + m);
-      M >= S && M <= p && f.add(M);
+      const w = Math.round(b + m);
+      w >= f && w <= y && g.add(w);
     }
-    f.add(n.rMin), f.add(p);
-    for (const m of f) v(h, m);
+    g.add(n.rMin), g.add(y);
+    for (const m of g) v(h, m);
   }
-  if (!g)
-    for (let h = n.cMin; h <= E; h++)
-      for (let u = n.rMin; u <= p; u++) v(h, u);
-  if (!g)
+  if (!p)
+    for (let h = n.cMin; h <= S; h++)
+      for (let u = n.rMin; u <= y; u++) v(h, u);
+  if (!p)
     throw new Error("No feasible grid found with given settings/tolerance.");
-  return g;
-}, R = (d, t, e, s, i) => {
-  const a = Math.max(1, Math.round(d / e)), l = Math.max(1, Math.round(t / s)), r = d - i * Math.max(0, a - 1), o = t - i * Math.max(0, l - 1), c = r / a, n = o / l;
-  return { width: c, height: n, cols: a, rows: l };
+  return p;
+}, R = (c, t, e, i, s) => {
+  const a = Math.max(1, Math.round(c / e)), o = Math.max(1, Math.round(t / i)), l = c - s * Math.max(0, a - 1), r = t - s * Math.max(0, o - 1), d = l / a, n = r / o;
+  return { width: d, height: n, cols: a, rows: o };
 };
 class z {
   gridEl;
@@ -63,7 +63,7 @@ class z {
     this.gridEl = t.gridEl, this.headerEl = t.headerEl ?? null, this.measureViewportEl = t.measureViewportEl ?? null, t.desiredBlockSize && (this.desiredBlockSize = t.desiredBlockSize), typeof t.gap == "number" && (this.gap = t.gap), typeof t.fadeOutDurationMs == "number" && (this.fadeOutDurationMs = t.fadeOutDurationMs), typeof t.staggerStepMs == "number" && (this.staggerStepMs = t.staggerStepMs), typeof t.fadeStaggerStepMs == "number" && (this.fadeStaggerStepMs = t.fadeStaggerStepMs), typeof t.initialResizeDelayFrames == "number" && (this.initialResizeDelayFrames = t.initialResizeDelayFrames), typeof t.initialScrollDelayMs == "number" && (this.initialScrollDelayMs = t.initialScrollDelayMs), typeof t.filterScrollDelayMs == "number" && (this.filterScrollDelayMs = t.filterScrollDelayMs);
   }
   setItems(t) {
-    this.items = t, this.allTags = Array.from(new Set(this.items.flatMap((e) => e.tags || []))).sort((e, s) => e.localeCompare(s)), this.initFromUrl(), this.renderTagChips(), this.delayFrames(this.initialResizeDelayFrames, () => this.onResizeImmediate()), window.setTimeout(() => this.onScroll(), this.initialScrollDelayMs);
+    this.items = t, this.allTags = Array.from(new Set(this.items.flatMap((e) => e.tags || []))).sort((e, i) => e.localeCompare(i)), this.initFromUrl(), this.renderTagChips(), this.delayFrames(this.initialResizeDelayFrames, () => this.onResizeImmediate()), window.setTimeout(() => this.onScroll(), this.initialScrollDelayMs);
   }
   init() {
     this.headerEl && (this.tagChipsEl = document.createElement("div"), this.tagChipsEl.className = "tags", this.headerEl.appendChild(this.tagChipsEl)), this.syncCssVars(), this.gridEl.addEventListener("scroll", () => this.onScroll(), { passive: !0 }), window.addEventListener("resize", () => this.onWindowResize());
@@ -77,8 +77,8 @@ class z {
   syncCssVars() {
     const t = document.documentElement.style;
     t.setProperty("--block-gap", `${this.gap}px`), t.setProperty("--fade-out-duration", `${this.fadeOutDurationMs}ms`);
-    const s = Math.max(0, this.initialScrollDelayMs - 250);
-    t.setProperty("--header-fade-delay", `${s}ms`);
+    const i = Math.max(0, this.initialScrollDelayMs - 250);
+    t.setProperty("--header-fade-delay", `${i}ms`);
   }
   delayFrames(t, e) {
     if (t <= 0) {
@@ -88,46 +88,53 @@ class z {
     requestAnimationFrame(() => this.delayFrames(t - 1, e));
   }
   setLayout(t, e) {
-    this.state = x(t, e, this.desiredBlockSize.width, this.desiredBlockSize.height, this.gap), this.headerRowIndex = 1;
-    const s = document.documentElement.style;
-    s.setProperty("--block-width", `${this.state.width}px`), s.setProperty("--block-height", `${this.state.height}px`), s.setProperty("--cols", String(this.state.cols)), s.setProperty("--rows", String(this.state.rows)), s.setProperty("--block-gap", `${this.gap}px`), s.setProperty("--header-row", `${this.headerRowIndex}`);
+    this.state = D(t, e, this.desiredBlockSize.width, this.desiredBlockSize.height, this.gap), this.headerRowIndex = 1;
+    const i = document.documentElement.style;
+    i.setProperty("--block-width", `${this.state.width}px`), i.setProperty("--block-height", `${this.state.height}px`), i.setProperty("--cols", String(this.state.cols)), i.setProperty("--rows", String(this.state.rows)), i.setProperty("--block-gap", `${this.gap}px`), i.setProperty("--header-row", `${this.headerRowIndex}`);
   }
   rebuildGrid() {
     if (!this.state) return;
     this.gridEl.innerHTML = "";
     const t = document.createElement("div");
-    t.className = "row-spacer col-0", this.gridEl.appendChild(t), this.items.filter((s) => this.activeTags.size === 0 ? !0 : (s.tags || []).some((a) => this.activeTags.has(a))).forEach((s, i) => {
-      const a = Math.floor(i / this.state.cols), l = i % this.state.cols, r = this.createCard(s);
-      r.dataset.row = `${a}`, r.dataset.column = `${l}`, r.classList.add(`row-${a}`), r.classList.add(`col-${l}`);
-      const n = (a % 2 === 0 ? l : this.state.cols - 1 - l) * this.staggerStepMs, w = i * this.fadeStaggerStepMs;
-      r.style.transitionDelay = `${n}ms`, r.style.setProperty("--fade-delay", `${w}ms`), r.classList.add("fade-in"), this.gridEl.appendChild(r);
+    t.className = "row-spacer col-0", this.gridEl.appendChild(t);
+    const e = this.items.filter((s) => this.activeTags.size === 0 ? !0 : (s.tags || []).some((o) => this.activeTags.has(o)));
+    e.forEach((s, a) => {
+      const o = Math.floor(a / this.state.cols), l = a % this.state.cols, r = this.createCard(s);
+      r.dataset.row = `${o}`, r.dataset.column = `${l}`, r.classList.add(`row-${o}`), r.classList.add(`col-${l}`);
+      const E = (o % 2 === 0 ? l : this.state.cols - 1 - l) * this.staggerStepMs, f = a * this.fadeStaggerStepMs;
+      r.style.transitionDelay = `${E}ms`, r.style.setProperty("--fade-delay", `${f}ms`), r.classList.add("fade-in"), this.gridEl.appendChild(r);
     });
+    const i = Math.ceil(e.length / this.state.cols) + 1;
+    for (let s = 0; s < i; s++) {
+      const a = document.createElement("div");
+      a.className = "snap-block", a.dataset.row = `${s}`, a.style.top = `${s * (this.state.height + this.gap)}px`, this.gridEl.appendChild(a);
+    }
   }
   createCard(t) {
-    const e = t.title, i = (Array.isArray(t.thumbnails) ? t.thumbnails : [])[0], a = (t.tags || []).sort((r, o) => r.localeCompare(o)), l = document.createElement("div");
-    return l.className = "block", l.innerHTML = `
-      ${i ? `<div class="media"><img class="thumb" src="${i}" alt="${e}"></div>` : ""}
+    const e = t.title, s = (Array.isArray(t.thumbnails) ? t.thumbnails : [])[0], a = (t.tags || []).sort((l, r) => l.localeCompare(r)), o = document.createElement("div");
+    return o.className = "block", o.innerHTML = `
+      ${s ? `<div class="media"><img class="thumb" src="${s}" alt="${e}"></div>` : ""}
       <div class="content block-border">
         <div class="info">
           <h3>${e}</h3>
         </div>
         <div class="tags">
-          ${a.map((r) => `<button class="tag${this.activeTags.has(r) ? " active" : ""}" data-tag="${r}">${r}</button>`).join("")}
+          ${a.map((l) => `<button class="tag${this.activeTags.has(l) ? " active" : ""}" data-tag="${l}">${l}</button>`).join("")}
         </div>
       </div>
       <svg class="checker-border" xmlns="http://www.w3.org/2000/svg">
         <rect class="dash black" />
         <rect class="dash white" />
       </svg>
-    `, t.href && l.addEventListener("click", () => {
+    `, t.href && o.addEventListener("click", () => {
       window.location.href = t.href;
-    }), l.querySelectorAll(".tag").forEach((r) => {
-      r.addEventListener("click", (o) => {
-        o.preventDefault(), o.stopPropagation();
-        const c = r.getAttribute("data-tag");
-        c && this.toggleTag(c);
+    }), o.querySelectorAll(".tag").forEach((l) => {
+      l.addEventListener("click", (r) => {
+        r.preventDefault(), r.stopPropagation();
+        const d = l.getAttribute("data-tag");
+        d && this.toggleTag(d);
       });
-    }), l;
+    }), o;
   }
   // -------------------------
   // Event handlers
@@ -154,9 +161,9 @@ class z {
   }
   updateAboveHeaderClasses() {
     if (!this.state) return;
-    const t = this.state.height + this.gap, s = Math.round(this.gridEl.scrollTop / t) + this.headerRowIndex;
+    const t = this.state.height + this.gap, i = Math.round(this.gridEl.scrollTop / t) + this.headerRowIndex;
     this.gridEl.querySelectorAll(".block").forEach((a) => {
-      parseInt(a.dataset.row || "0", 10) < s ? a.classList.add("above-header") : a.classList.remove("above-header");
+      parseInt(a.dataset.row || "0", 10) < i ? a.classList.add("above-header") : a.classList.remove("above-header");
     });
   }
   scheduleRaiseHeaderZIndexAfterStagger() {
@@ -166,17 +173,17 @@ class z {
       this.headerEl.style.zIndex = "10", this.headerZIndexRaised = !0;
       return;
     }
-    const e = (s) => {
-      const i = s.trim();
-      if (i.endsWith("ms")) return parseFloat(i);
-      if (i.endsWith("s")) return parseFloat(i) * 1e3;
-      const a = parseFloat(i);
+    const e = (i) => {
+      const s = i.trim();
+      if (s.endsWith("ms")) return parseFloat(s);
+      if (s.endsWith("s")) return parseFloat(s) * 1e3;
+      const a = parseFloat(s);
       return Number.isFinite(a) ? a : 0;
     };
-    t.forEach((s) => {
-      const i = getComputedStyle(s), a = i.transitionDelay.split(",").map((o) => e(o)), l = i.transitionDuration.split(",").map((o) => e(o)), r = Math.max(a.length, l.length);
-      for (let o = 0; o < r; o++)
-        a[o % a.length], l[o % l.length];
+    t.forEach((i) => {
+      const s = getComputedStyle(i), a = s.transitionDelay.split(",").map((r) => e(r)), o = s.transitionDuration.split(",").map((r) => e(r)), l = Math.max(a.length, o.length);
+      for (let r = 0; r < l; r++)
+        a[r % a.length], o[r % o.length];
     });
   }
   // -------------------------
@@ -185,8 +192,8 @@ class z {
   renderTagChips() {
     this.tagChipsEl && (this.tagChipsEl.innerHTML = "", this.allTags.forEach((t) => {
       const e = document.createElement("button");
-      e.type = "button", e.className = "tag", e.textContent = t, e.dataset.tag = t, this.activeTags.has(t) && e.classList.add("active"), e.addEventListener("click", (s) => {
-        s.preventDefault(), s.stopPropagation(), this.toggleTag(t);
+      e.type = "button", e.className = "tag", e.textContent = t, e.dataset.tag = t, this.activeTags.has(t) && e.classList.add("active"), e.addEventListener("click", (i) => {
+        i.preventDefault(), i.stopPropagation(), this.toggleTag(t);
       }), this.tagChipsEl.appendChild(e);
     }));
   }
@@ -200,32 +207,32 @@ class z {
       return;
     }
     this.fadeOutTimer !== null && (window.clearTimeout(this.fadeOutTimer), this.fadeOutTimer = null);
-    let s = 0;
+    let i = 0;
     e.forEach((a) => {
-      const l = parseInt(a.dataset.row || "0", 10), r = parseInt(a.dataset.column || "0", 10), n = (l % 2 === 0 ? r : this.state.cols - 1 - r) * this.fadeStaggerStepMs;
-      a.style.setProperty("--fade-delay", `${n}ms`), a.classList.add("fade-out"), n > s && (s = n);
+      const o = parseInt(a.dataset.row || "0", 10), l = parseInt(a.dataset.column || "0", 10), n = (o % 2 === 0 ? l : this.state.cols - 1 - l) * this.fadeStaggerStepMs;
+      a.style.setProperty("--fade-delay", `${n}ms`), a.classList.add("fade-out"), n > i && (i = n);
     });
-    const i = s + this.fadeOutDurationMs + 20;
+    const s = i + this.fadeOutDurationMs + 20;
     this.fadeOutTimer = window.setTimeout(() => {
       this.fadeOutTimer = null, t();
-    }, i);
+    }, s);
   }
   syncUrl() {
     const t = new URLSearchParams(location.search), e = Array.from(this.activeTags);
     e.length ? t.set("tags", e.join(",")) : t.delete("tags");
-    const s = t.toString(), i = s ? `${location.pathname}?${s}` : location.pathname;
-    history.pushState(null, "", i);
+    const i = t.toString(), s = i ? `${location.pathname}?${i}` : location.pathname;
+    history.pushState(null, "", s);
   }
   initFromUrl() {
     this.activeTags.clear();
     const e = new URLSearchParams(location.search).get("tags");
-    e && e.split(",").filter(Boolean).forEach((s) => this.activeTags.add(s)), window.addEventListener("popstate", () => {
+    e && e.split(",").filter(Boolean).forEach((i) => this.activeTags.add(i)), window.addEventListener("popstate", () => {
       this.initFromUrl(), this.renderTagChips(), this.fadeOutBlocksThen(() => this.onResizeImmediate());
     });
   }
 }
 export {
   z as GridList,
-  x as findBestBlockSize,
+  D as findBestBlockSize,
   R as findNaiveBlockSize
 };

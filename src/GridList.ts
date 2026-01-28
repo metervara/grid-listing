@@ -144,6 +144,16 @@ export class GridList {
       card.classList.add('fade-in');
       this.gridEl.appendChild(card);
     });
+
+    const totalRows = Math.ceil(filtered.length / this.state.cols) + 1; // +1 for the header row
+    for (let i = 0; i < totalRows; i++) {
+      const snapBlock = document.createElement('div');
+      snapBlock.className = 'snap-block';
+      snapBlock.dataset.row = `${i}`;
+      snapBlock.style.top = `${i * (this.state.height + this.gap)}px`;
+      this.gridEl.appendChild(snapBlock);
+    }
+    // console.log('cols', this.state.cols, 'rows', this.state.rows);
   }
 
   private createCard(item: GridItem): HTMLDivElement {
