@@ -1,4 +1,4 @@
-import type { GridConfig, GridItem } from './types';
+import type { GridConfig, GridItem, GridState } from './types';
 type ListEvents = {
     "scroll:start": void;
     "scroll:end": {
@@ -19,6 +19,7 @@ export declare function createGridList(config: GridConfig): {
         readonly emit: <K extends keyof ListEvents>(type: K, payload: ListEvents[K]) => void;
         readonly clear: () => void;
     };
+    getLayout: () => GridState;
 };
 export type GridListInstance = ReturnType<typeof createGridList>;
 export {};

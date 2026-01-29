@@ -369,7 +369,11 @@ export function createGridList(config: GridConfig) {
     window.setTimeout(applyInitialScrollUpdate, initialScrollDelayMs);
   }
 
-  return { init, destroy, setItems, events };
+  function getLayout() {
+    return state;
+  }
+
+  return { init, destroy, setItems, events, getLayout };
 }
 
 // Type export for consumers

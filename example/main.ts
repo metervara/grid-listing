@@ -14,15 +14,32 @@ const grid = createGridList({
   additionalSpacerRows: true,
 });
 
+const getActiveItems = (aboveHeader: number | undefined, belowHeader: number | undefined) => {
+  const layout = grid.getLayout();
+  return items.filter((item, index) => {
+    const row = Math.floor(index / layout.cols);
+    return row === aboveHeader || row === belowHeader;
+  });
+};
+
 grid.init();
 grid.events.on("scroll:start", () => {
   console.log("Scrolling started");
 });
 grid.events.on("scroll:end", ({ aboveHeader, belowHeader }) => {
-  console.log("Scrolling ended", { aboveHeader, belowHeader });
+  console.log("Scrolling ended");
+  // console.log("Scrolling ended", { aboveHeader, belowHeader }, grid.getLayout());
+
+  const activeItems = getActiveItems(aboveHeader, belowHeader);
+  console.log(`Active items: "${activeItems.map((item) => item.title).join(", ")}"`);
 });
+
 grid.events.on("initial:scroll:end", ({ aboveHeader, belowHeader }) => {
-  console.log("Initial scroll ended", { aboveHeader, belowHeader });
+  console.log("Initial scroll ended");
+  // console.log("Initial scroll ended", { aboveHeader, belowHeader }, grid.getLayout());
+
+  const activeItems = getActiveItems(aboveHeader, belowHeader);
+  console.log(`Active items: "${activeItems.map((item) => item.title).join(", ")}"`);
 });
 
 // Convert manifest items to grid items
