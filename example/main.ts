@@ -1,4 +1,4 @@
-import { GridList, GridItem } from '@metervara/grid-listing';
+import { createGridList, GridItem } from '@metervara/grid-listing';
 import '@metervara/grid-listing/styles';
 import gridManifest from 'virtual:grid-manifest';
 
@@ -6,7 +6,7 @@ const gridEl = document.getElementById('grid')!;
 const headerEl = document.getElementById('header')!;
 const measureEl = document.getElementById('measure')!;
 
-const grid = new GridList({
+const grid = createGridList({
   gridEl,
   headerEl,
   measureViewportEl: measureEl,

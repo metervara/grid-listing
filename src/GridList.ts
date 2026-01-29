@@ -1,161 +1,118 @@
 import { findBestBlockSize } from './blockSize';
 import type { GridConfig, GridItem, GridState } from './types';
 
-export class GridList {
-  private gridEl: HTMLElement;
-  private headerEl: HTMLElement | null;
-  private measureViewportEl: HTMLElement | null;
+export function createGridList(config: GridConfig) {
+  // === State as local variables ===
+  const gridEl = config.gridEl;
+  const headerEl = config.headerEl ?? null;
+  const measureViewportEl = config.measureViewportEl ?? null;
 
-  private desiredBlockSize = { width: 400, height: 300 };
-  private gap = 10;
+  const desiredBlockSize = config.desiredBlockSize ?? { width: 400, height: 300 };
+  const gap = config.gap ?? 10;
 
-  private fadeOutDurationMs = 200;
+  const fadeOutDurationMs = config.fadeOutDurationMs ?? 200;
 
-  private staggerStepMs = 75;
-  private fadeStaggerStepMs = 50;
+  const staggerStepMs = config.staggerStepMs ?? 75;
+  const fadeStaggerStepMs = config.fadeStaggerStepMs ?? 50;
 
-  private initialResizeDelayFrames = 2;
-  private initialScrollDelayMs = 1750;
-  private filterScrollDelayMs = 400;
+  const initialResizeDelayFrames = config.initialResizeDelayFrames ?? 2;
+  const initialScrollDelayMs = config.initialScrollDelayMs ?? 1750;
+  const filterScrollDelayMs = config.filterScrollDelayMs ?? 400;
 
-  private items: GridItem[] = [];
-  private allTags: string[] = [];
-  private activeTags = new Set<string>();
-  private tagChipsEl: HTMLDivElement | null = null;
+  let items: GridItem[] = [];
+  let allTags: string[] = [];
+  const activeTags = new Set<string>();
+  let tagChipsEl: HTMLDivElement | null = null;
 
-  private hasDoneInitialScrollUpdate = false;
-  private hasDoneInitialResize = false;
-  private resizeDebounceTimer: number | null = null;
-  private fadeOutTimer: number | null = null;
+  let hasDoneInitialScrollUpdate = false;
+  let hasDoneInitialResize = false;
+  let resizeDebounceTimer: number | null = null;
+  let fadeOutTimer: number | null = null;
 
-  private state!: GridState;
-  private headerRowIndex = 0;
+  let state: GridState;
+  let headerRowIndex = 0;
 
-  constructor(config: GridConfig) {
-    this.gridEl = config.gridEl;
-    this.headerEl = config.headerEl ?? null;
-    this.measureViewportEl = config.measureViewportEl ?? null;
-
-    if (config.desiredBlockSize) this.desiredBlockSize = config.desiredBlockSize;
-    if (typeof config.gap === 'number') this.gap = config.gap;
-
-    if (typeof config.fadeOutDurationMs === 'number') this.fadeOutDurationMs = config.fadeOutDurationMs;
-
-    if (typeof config.staggerStepMs === 'number') this.staggerStepMs = config.staggerStepMs;
-    if (typeof config.fadeStaggerStepMs === 'number') this.fadeStaggerStepMs = config.fadeStaggerStepMs;
-
-    if (typeof config.initialResizeDelayFrames === 'number') this.initialResizeDelayFrames = config.initialResizeDelayFrames;
-    if (typeof config.initialScrollDelayMs === 'number') this.initialScrollDelayMs = config.initialScrollDelayMs;
-    if (typeof config.filterScrollDelayMs === 'number') this.filterScrollDelayMs = config.filterScrollDelayMs;
+  // Handler for popstate (needs to be stored for cleanup)
+  function onPopstate() {
+    initFromUrl();
+    renderTagChips();
+    fadeOutBlocksThen(() => onResizeImmediate());
   }
 
-  setItems(items: GridItem[]) {
-    this.items = items;
-    this.allTags = Array.from(new Set(this.items.flatMap(i => i.tags || []))).sort((a, b) => a.localeCompare(b));
-    this.initFromUrl();
-    this.renderTagChips();
-    this.delayFrames(this.initialResizeDelayFrames, () => this.onResizeImmediate());
-    window.setTimeout(() => this.onScroll(), this.initialScrollDelayMs);
-  }
-
-  init() {
-    // Ensure header has a tag chips container
-    if (this.headerEl) {
-      this.tagChipsEl = document.createElement('div');
-      this.tagChipsEl.className = 'tags';
-      this.headerEl.appendChild(this.tagChipsEl);
-    }
-
-    // Set CSS variables that must be in sync with JS
-    this.syncCssVars();
-
-    // Listeners
-    this.gridEl.addEventListener('scroll', () => this.onScroll(), { passive: true });
-    window.addEventListener('resize', () => this.onWindowResize());
-  }
-
-  destroy() {
-    this.gridEl.removeEventListener('scroll', () => this.onScroll());
-    window.removeEventListener('resize', () => this.onWindowResize());
-  }
-
-  // -------------------------
-  // Internals
-  // -------------------------
-  private syncCssVars() {
+  // === Helper functions ===
+  function syncCssVars() {
     const root = document.documentElement.style;
-    root.setProperty('--block-gap', `${this.gap}px`);
-    root.setProperty('--fade-out-duration', `${this.fadeOutDurationMs}ms`);
+    root.setProperty('--block-gap', `${gap}px`);
+    root.setProperty('--fade-out-duration', `${fadeOutDurationMs}ms`);
     // Start header fade-in slightly before initial scroll triggers
     const headerFadeLeadMs = 250;
-    const headerFadeDelayMs = Math.max(0, this.initialScrollDelayMs - headerFadeLeadMs);
+    const headerFadeDelayMs = Math.max(0, initialScrollDelayMs - headerFadeLeadMs);
     root.setProperty('--header-fade-delay', `${headerFadeDelayMs}ms`);
   }
 
-  private delayFrames(frames: number, callback: () => void) {
+  function delayFrames(frames: number, callback: () => void) {
     if (frames <= 0) {
       callback();
       return;
     }
-    requestAnimationFrame(() => this.delayFrames(frames - 1, callback));
+    requestAnimationFrame(() => delayFrames(frames - 1, callback));
   }
 
-  private setLayout(width: number, height: number) {
-    this.state = findBestBlockSize(width, height, this.desiredBlockSize.width, this.desiredBlockSize.height, this.gap);
-    this.headerRowIndex = 1;
+  function setLayout(width: number, height: number) {
+    state = findBestBlockSize(width, height, desiredBlockSize.width, desiredBlockSize.height, gap);
+    headerRowIndex = 1;
     const root = document.documentElement.style;
-    root.setProperty('--block-width', `${this.state.width}px`);
-    root.setProperty('--block-height', `${this.state.height}px`);
-    root.setProperty('--cols', String(this.state.cols));
-    root.setProperty('--rows', String(this.state.rows));
-    root.setProperty('--block-gap', `${this.gap}px`);
-    root.setProperty('--header-row', `${this.headerRowIndex}`);
+    root.setProperty('--block-width', `${state.width}px`);
+    root.setProperty('--block-height', `${state.height}px`);
+    root.setProperty('--cols', String(state.cols));
+    root.setProperty('--rows', String(state.rows));
+    root.setProperty('--block-gap', `${gap}px`);
+    root.setProperty('--header-row', `${headerRowIndex}`);
   }
 
-  private rebuildGrid() {
-    if (!this.state) return;
-    this.gridEl.innerHTML = '';
+  function rebuildGrid() {
+    if (!state) return;
+    gridEl.innerHTML = '';
     const spacerBlock = document.createElement('div');
     spacerBlock.className = 'row-spacer col-0';
-    this.gridEl.appendChild(spacerBlock);
+    gridEl.appendChild(spacerBlock);
 
-    const filtered = this.items.filter(i => {
-      if (this.activeTags.size === 0) return true;
+    const filtered = items.filter(i => {
+      if (activeTags.size === 0) return true;
       const tags = i.tags || [];
-      return tags.some(t => this.activeTags.has(t));
+      return tags.some(t => activeTags.has(t));
     });
 
     filtered.forEach((item, index) => {
-      const row = Math.floor(index / this.state.cols);
-      const column = index % this.state.cols;
-      const card = this.createCard(item);
+      const row = Math.floor(index / state.cols);
+      const column = index % state.cols;
+      const card = createCard(item);
       card.dataset.row = `${row}`;
       card.dataset.column = `${column}`;
       card.classList.add(`row-${row}`);
       card.classList.add(`col-${column}`);
 
       const isEvenRow = (row % 2) === 0;
-      const delayIndex = isEvenRow ? column : (this.state.cols - 1 - column);
-      const transformDelayMs = delayIndex * this.staggerStepMs;
-      const fadeDelayMs = index * this.fadeStaggerStepMs;
+      const delayIndex = isEvenRow ? column : (state.cols - 1 - column);
+      const transformDelayMs = delayIndex * staggerStepMs;
+      const fadeDelayMs = index * fadeStaggerStepMs;
       card.style.transitionDelay = `${transformDelayMs}ms`;
       card.style.setProperty('--fade-delay', `${fadeDelayMs}ms`);
       card.classList.add('fade-in');
-      this.gridEl.appendChild(card);
+      gridEl.appendChild(card);
     });
 
-    const totalRows = Math.ceil(filtered.length / this.state.cols) + 1; // +1 for the header row
+    const totalRows = Math.ceil(filtered.length / state.cols) + 1; // +1 for the header row
     for (let i = 0; i < totalRows; i++) {
       const snapBlock = document.createElement('div');
       snapBlock.className = 'snap-block';
       snapBlock.dataset.row = `${i}`;
-      snapBlock.style.top = `${i * (this.state.height + this.gap)}px`;
-      this.gridEl.appendChild(snapBlock);
+      snapBlock.style.top = `${i * (state.height + gap)}px`;
+      gridEl.appendChild(snapBlock);
     }
-    // console.log('cols', this.state.cols, 'rows', this.state.rows);
   }
 
-  private createCard(item: GridItem): HTMLDivElement {
+  function createCard(item: GridItem): HTMLDivElement {
     const title = item.title;
     const thumbnails = Array.isArray(item.thumbnails) ? item.thumbnails : [];
     const primaryThumb = thumbnails[0];
@@ -169,7 +126,7 @@ export class GridList {
           <h3>${title}</h3>
         </div>
         <div class="tags">
-          ${tags.map(t => `<button class="tag${this.activeTags.has(t) ? ' active' : ''}" data-tag="${t}">${t}</button>`).join('')}
+          ${tags.map(t => `<button class="tag${activeTags.has(t) ? ' active' : ''}" data-tag="${t}">${t}</button>`).join('')}
         </div>
       </div>
       <svg class="checker-border" xmlns="http://www.w3.org/2000/svg">
@@ -187,78 +144,75 @@ export class GridList {
         ev.preventDefault();
         ev.stopPropagation();
         const tag = tEl.getAttribute('data-tag');
-        if (tag) this.toggleTag(tag);
+        if (tag) toggleTag(tag);
       });
     });
     return card;
   }
 
-  // -------------------------
-  // Event handlers
-  // -------------------------
-  private onScroll() {
-    this.updateAboveHeaderClasses();
-   
-    this.hasDoneInitialScrollUpdate = true;
+  // === Event handlers ===
+  function onScroll() {
+    updateAboveHeaderClasses();
+    hasDoneInitialScrollUpdate = true;
   }
 
-  private onResizeImmediate() {
-    const rect = this.measureViewportEl?.getBoundingClientRect();
+  function onResizeImmediate() {
+    const rect = measureViewportEl?.getBoundingClientRect();
     if (!rect) {
       console.warn('[grid] measureViewport element not found');
       return;
     }
 
     // Pass 1: use viewport rect
-    this.setLayout(rect.width, rect.height);
-    this.rebuildGrid();
-    if (this.hasDoneInitialScrollUpdate) this.updateAboveHeaderClasses();
+    setLayout(rect.width, rect.height);
+    rebuildGrid();
+    if (hasDoneInitialScrollUpdate) updateAboveHeaderClasses();
 
     // Pass 2: recompute with client width if vertical scrollbar appears
-    if (this.gridEl && this.gridEl.scrollHeight > this.gridEl.clientHeight) {
-      this.setLayout(this.gridEl.clientWidth, rect.height);
-      this.rebuildGrid();
-      if (this.hasDoneInitialScrollUpdate) this.updateAboveHeaderClasses();
+    if (gridEl && gridEl.scrollHeight > gridEl.clientHeight) {
+      setLayout(gridEl.clientWidth, rect.height);
+      rebuildGrid();
+      if (hasDoneInitialScrollUpdate) updateAboveHeaderClasses();
     }
 
-    if (!this.hasDoneInitialResize) {
-      this.hasDoneInitialResize = true;
+    if (!hasDoneInitialResize) {
+      hasDoneInitialResize = true;
       document.body.classList.add('layout-ready');
     }
   }
 
-  private onWindowResize() {
-    const rect = this.measureViewportEl?.getBoundingClientRect();
+  function onWindowResize() {
+    const rect = measureViewportEl?.getBoundingClientRect();
     if (!rect) return;
 
-    this.setLayout(rect.width, rect.height);
+    setLayout(rect.width, rect.height);
 
-    this.gridEl.innerHTML = '';
+    gridEl.innerHTML = '';
     const spacerBlock = document.createElement('div');
     spacerBlock.className = 'row-spacer col-0';
-    this.gridEl.appendChild(spacerBlock);
+    gridEl.appendChild(spacerBlock);
 
-    if (this.resizeDebounceTimer !== null) {
-      window.clearTimeout(this.resizeDebounceTimer);
+    if (resizeDebounceTimer !== null) {
+      window.clearTimeout(resizeDebounceTimer);
     }
-    this.resizeDebounceTimer = window.setTimeout(() => {
-      this.rebuildGrid();
-      if (this.hasDoneInitialScrollUpdate) this.updateAboveHeaderClasses();
-      if (this.gridEl && this.gridEl.scrollHeight > this.gridEl.clientHeight) {
-        this.setLayout(this.gridEl.clientWidth, rect.height);
-        this.rebuildGrid();
-        if (this.hasDoneInitialScrollUpdate) this.updateAboveHeaderClasses();
+    resizeDebounceTimer = window.setTimeout(() => {
+      rebuildGrid();
+      if (hasDoneInitialScrollUpdate) updateAboveHeaderClasses();
+      if (gridEl && gridEl.scrollHeight > gridEl.clientHeight) {
+        setLayout(gridEl.clientWidth, rect.height);
+        rebuildGrid();
+        if (hasDoneInitialScrollUpdate) updateAboveHeaderClasses();
       }
-      this.resizeDebounceTimer = null;
+      resizeDebounceTimer = null;
     }, 400);
   }
 
-  private updateAboveHeaderClasses() {
-    if (!this.state) return;
-    const rowSpan = this.state.height + this.gap;
-    const scrolledRows = Math.round(this.gridEl.scrollTop / rowSpan);
-    const headerAbsoluteRow = scrolledRows + this.headerRowIndex;
-    const blocks = this.gridEl.querySelectorAll<HTMLDivElement>('.block');
+  function updateAboveHeaderClasses() {
+    if (!state) return;
+    const rowSpan = state.height + gap;
+    const scrolledRows = Math.round(gridEl.scrollTop / rowSpan);
+    const headerAbsoluteRow = scrolledRows + headerRowIndex;
+    const blocks = gridEl.querySelectorAll<HTMLDivElement>('.block');
     blocks.forEach(b => {
       const row = parseInt(b.dataset.row || '0', 10);
       if (row < headerAbsoluteRow) {
@@ -269,45 +223,43 @@ export class GridList {
     });
   }
 
-  // -------------------------
-  // Tags & URL
-  // -------------------------
-  private renderTagChips() {
-    if (!this.tagChipsEl) return;
-    this.tagChipsEl.innerHTML = '';
-    this.allTags.forEach(tag => {
+  // === Tags & URL ===
+  function renderTagChips() {
+    if (!tagChipsEl) return;
+    tagChipsEl.innerHTML = '';
+    allTags.forEach(tag => {
       const chip = document.createElement('button');
       chip.type = 'button';
       chip.className = 'tag';
       chip.textContent = tag;
       chip.dataset.tag = tag;
-      if (this.activeTags.has(tag)) chip.classList.add('active');
+      if (activeTags.has(tag)) chip.classList.add('active');
       chip.addEventListener('click', (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
-        this.toggleTag(tag);
+        toggleTag(tag);
       });
-      this.tagChipsEl!.appendChild(chip);
+      tagChipsEl!.appendChild(chip);
     });
   }
 
-  private toggleTag(tag: string) {
-    if (this.activeTags.has(tag)) this.activeTags.delete(tag);
-    else this.activeTags.add(tag);
-    this.renderTagChips();
-    this.hasDoneInitialScrollUpdate = false;
-    this.fadeOutBlocksThen(() => this.onResizeImmediate());
-    window.setTimeout(() => this.onScroll(), this.filterScrollDelayMs);
-    this.syncUrl();
+  function toggleTag(tag: string) {
+    if (activeTags.has(tag)) activeTags.delete(tag);
+    else activeTags.add(tag);
+    renderTagChips();
+    hasDoneInitialScrollUpdate = false;
+    fadeOutBlocksThen(() => onResizeImmediate());
+    window.setTimeout(() => onScroll(), filterScrollDelayMs);
+    syncUrl();
   }
 
-  private fadeOutBlocksThen(callback: () => void) {
-    const blocks = Array.from(this.gridEl.querySelectorAll<HTMLDivElement>('.block'));
+  function fadeOutBlocksThen(callback: () => void) {
+    const blocks = Array.from(gridEl.querySelectorAll<HTMLDivElement>('.block'));
     if (blocks.length === 0) { callback(); return; }
 
-    if (this.fadeOutTimer !== null) {
-      window.clearTimeout(this.fadeOutTimer);
-      this.fadeOutTimer = null;
+    if (fadeOutTimer !== null) {
+      window.clearTimeout(fadeOutTimer);
+      fadeOutTimer = null;
     }
 
     let maxDelay = 0;
@@ -315,23 +267,23 @@ export class GridList {
       const row = parseInt(b.dataset.row || '0', 10);
       const col = parseInt(b.dataset.column || '0', 10);
       const isEvenRow = (row % 2) === 0;
-      const delayIndex = isEvenRow ? col : (this.state.cols - 1 - col);
-      const fadeDelayMs = delayIndex * this.fadeStaggerStepMs;
+      const delayIndex = isEvenRow ? col : (state.cols - 1 - col);
+      const fadeDelayMs = delayIndex * fadeStaggerStepMs;
       b.style.setProperty('--fade-delay', `${fadeDelayMs}ms`);
       b.classList.add('fade-out');
       if (fadeDelayMs > maxDelay) maxDelay = fadeDelayMs;
     });
 
-    const total = maxDelay + this.fadeOutDurationMs + 20;
-    this.fadeOutTimer = window.setTimeout(() => {
-      this.fadeOutTimer = null;
+    const total = maxDelay + fadeOutDurationMs + 20;
+    fadeOutTimer = window.setTimeout(() => {
+      fadeOutTimer = null;
       callback();
     }, total);
   }
 
-  private syncUrl() {
+  function syncUrl() {
     const params = new URLSearchParams(location.search);
-    const tags = Array.from(this.activeTags);
+    const tags = Array.from(activeTags);
     if (tags.length) params.set('tags', tags.join(','));
     else params.delete('tags');
     const query = params.toString();
@@ -339,17 +291,58 @@ export class GridList {
     history.pushState(null, '', url);
   }
 
-  private initFromUrl() {
-    this.activeTags.clear();
+  function initFromUrl() {
+    activeTags.clear();
     const params = new URLSearchParams(location.search);
     const tags = params.get('tags');
-    if (tags) tags.split(',').filter(Boolean).forEach(t => this.activeTags.add(t));
-
-    // Keep UI in sync when navigating with browser back/forward
-    window.addEventListener('popstate', () => {
-      this.initFromUrl();
-      this.renderTagChips();
-      this.fadeOutBlocksThen(() => this.onResizeImmediate());
-    });
+    if (tags) tags.split(',').filter(Boolean).forEach(t => activeTags.add(t));
   }
+
+  // === Public API ===
+  function init() {
+    // Ensure header has a tag chips container
+    if (headerEl) {
+      tagChipsEl = document.createElement('div');
+      tagChipsEl.className = 'tags';
+      headerEl.appendChild(tagChipsEl);
+    }
+
+    // Set CSS variables that must be in sync with JS
+    syncCssVars();
+
+    // Listeners
+    gridEl.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onWindowResize);
+    window.addEventListener('popstate', onPopstate);
+  }
+
+  function destroy() {
+    gridEl.removeEventListener('scroll', onScroll);
+    window.removeEventListener('resize', onWindowResize);
+    window.removeEventListener('popstate', onPopstate);
+
+    // Clear any pending timers
+    if (resizeDebounceTimer !== null) {
+      window.clearTimeout(resizeDebounceTimer);
+      resizeDebounceTimer = null;
+    }
+    if (fadeOutTimer !== null) {
+      window.clearTimeout(fadeOutTimer);
+      fadeOutTimer = null;
+    }
+  }
+
+  function setItems(newItems: GridItem[]) {
+    items = newItems;
+    allTags = Array.from(new Set(items.flatMap(i => i.tags || []))).sort((a, b) => a.localeCompare(b));
+    initFromUrl();
+    renderTagChips();
+    delayFrames(initialResizeDelayFrames, () => onResizeImmediate());
+    window.setTimeout(() => onScroll(), initialScrollDelayMs);
+  }
+
+  return { init, destroy, setItems };
 }
+
+// Type export for consumers
+export type GridListInstance = ReturnType<typeof createGridList>;

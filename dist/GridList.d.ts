@@ -1,45 +1,8 @@
 import type { GridConfig, GridItem } from './types';
-export declare class GridList {
-    private gridEl;
-    private headerEl;
-    private measureViewportEl;
-    private desiredBlockSize;
-    private gap;
-    private fadeOutDurationMs;
-    private staggerStepMs;
-    private fadeStaggerStepMs;
-    private initialResizeDelayFrames;
-    private initialScrollDelayMs;
-    private filterScrollDelayMs;
-    private items;
-    private allTags;
-    private activeTags;
-    private tagChipsEl;
-    private hasDoneInitialScrollUpdate;
-    private hasDoneInitialResize;
-    private resizeDebounceTimer;
-    private fadeOutTimer;
-    private headerZIndexRaised;
-    private state;
-    private headerRowIndex;
-    constructor(config: GridConfig);
-    setItems(items: GridItem[]): void;
-    init(): void;
-    destroy(): void;
-    private syncCssVars;
-    private delayFrames;
-    private setLayout;
-    private rebuildGrid;
-    private createCard;
-    private onScroll;
-    private onResizeImmediate;
-    private onWindowResize;
-    private updateAboveHeaderClasses;
-    private scheduleRaiseHeaderZIndexAfterStagger;
-    private renderTagChips;
-    private toggleTag;
-    private fadeOutBlocksThen;
-    private syncUrl;
-    private initFromUrl;
-}
+export declare function createGridList(config: GridConfig): {
+    init: () => void;
+    destroy: () => void;
+    setItems: (newItems: GridItem[]) => void;
+};
+export type GridListInstance = ReturnType<typeof createGridList>;
 //# sourceMappingURL=GridList.d.ts.map

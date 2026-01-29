@@ -21,10 +21,10 @@ npm install github:metervara/grid-listing#v0.1.0
 ### JavaScript
 
 ```typescript
-import { GridList, type GridItem } from '@metervara/grid-listing';
+import { createGridList, type GridItem } from '@metervara/grid-listing';
 import '@metervara/grid-listing/styles';
 
-const grid = new GridList({
+const grid = createGridList({
   gridEl: document.querySelector('.grid-listing')!,
   headerEl: document.querySelector('.grid-listing-header'),
   measureViewportEl: document.querySelector('.grid-listing-measure'),
@@ -126,9 +126,9 @@ declare module 'virtual:projects' {
 
 ```typescript
 import manifest from 'virtual:projects';
-import { GridList } from '@metervara/grid-listing';
+import { createGridList } from '@metervara/grid-listing';
 
-const grid = new GridList({ gridEl: document.querySelector('.grid-listing')! });
+const grid = createGridList({ gridEl: document.querySelector('.grid-listing')! });
 grid.init();
 grid.setItems(manifest.items.map(item => ({
   title: item.title || item.name,
@@ -206,7 +206,7 @@ In dev mode, the plugin watches the source directory and triggers a full reload 
 ## Configuration
 
 ```typescript
-const grid = new GridList({
+const grid = createGridList({
   gridEl: element,                    // Required: grid container
   headerEl: element,                  // Optional: fixed header element
   measureViewportEl: element,         // Optional: viewport measurement element
