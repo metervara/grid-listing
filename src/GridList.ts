@@ -27,7 +27,6 @@ export class GridList {
   private hasDoneInitialResize = false;
   private resizeDebounceTimer: number | null = null;
   private fadeOutTimer: number | null = null;
-  private headerZIndexRaised = false;
 
   private state!: GridState;
   private headerRowIndex = 0;
@@ -199,9 +198,7 @@ export class GridList {
   // -------------------------
   private onScroll() {
     this.updateAboveHeaderClasses();
-    if (!this.hasDoneInitialScrollUpdate) {
-      this.scheduleRaiseHeaderZIndexAfterStagger();
-    }
+   
     this.hasDoneInitialScrollUpdate = true;
   }
 
@@ -270,43 +267,6 @@ export class GridList {
         b.classList.remove('above-header');
       }
     });
-  }
-
-  private scheduleRaiseHeaderZIndexAfterStagger() {
-    if (!this.headerEl || !this.state || this.headerZIndexRaised) return;
-
-    const firstRowBlocks = Array.from(this.gridEl.querySelectorAll<HTMLDivElement>('.row-0'));
-    if (firstRowBlocks.length === 0) {
-      this.headerEl.style.zIndex = '10';
-      this.headerZIndexRaised = true;
-      return;
-    }
-
-    const parseTimeMs = (val: string): number => {
-      const v = val.trim();
-      if (v.endsWith('ms')) return parseFloat(v);
-      if (v.endsWith('s')) return parseFloat(v) * 1000;
-      const n = parseFloat(v);
-      return Number.isFinite(n) ? n : 0;
-    };
-
-    let maxFinishMs = 0;
-    firstRowBlocks.forEach(b => {
-      const cs = getComputedStyle(b);
-      const delays = cs.transitionDelay.split(',').map(d => parseTimeMs(d));
-      const durations = cs.transitionDuration.split(',').map(d => parseTimeMs(d));
-      const count = Math.max(delays.length, durations.length);
-      for (let i = 0; i < count; i++) {
-        const dly = delays[i % delays.length] || 0;
-        const dur = durations[i % durations.length] || 0;
-        const total = dly + dur;
-        if (total > maxFinishMs) maxFinishMs = total;
-      }
-    });
-
-    // Note: header z-index raising after stagger is currently disabled
-    // The calculation above is kept for potential future use
-    void maxFinishMs;
   }
 
   // -------------------------
