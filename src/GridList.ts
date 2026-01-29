@@ -32,6 +32,11 @@ export function createGridList(config: GridConfig) {
   let state: GridState;
   let headerRowIndex = 0;
 
+  let supportsScrollEnd: boolean;
+  let scrollEndTimeoutId: number | null = null;
+  let scrollEndTimeoutMs = 100;
+  let isScrolling = false;
+
   // Handler for popstate (needs to be stored for cleanup)
   function onPopstate() {
     initFromUrl();
@@ -151,9 +156,34 @@ export function createGridList(config: GridConfig) {
   }
 
   // === Event handlers ===
-  function onScroll() {
+  function applyInitialScrollUpdate() {
     updateAboveHeaderClasses();
     hasDoneInitialScrollUpdate = true;
+  }
+
+  function onScroll() {
+    if(!isScrolling) {
+      console.log("Scrolling started");
+    }
+    isScrolling = true;
+    updateAboveHeaderClasses();
+    hasDoneInitialScrollUpdate = true;
+  }
+
+  function onScrollEnd() {
+    if(isScrolling) {
+      console.log("Scrolling ended");
+    }
+    isScrolling = false;
+  }
+  
+  function onScrollEndFallback() {
+    // if(isScrolling) return;
+    // isScrolling = true;
+    if(scrollEndTimeoutId) window.clearTimeout(scrollEndTimeoutId);
+    scrollEndTimeoutId = window.setTimeout(() => {
+      onScrollEnd();
+    }, scrollEndTimeoutMs);
   }
 
   function onResizeImmediate() {
@@ -249,7 +279,7 @@ export function createGridList(config: GridConfig) {
     renderTagChips();
     hasDoneInitialScrollUpdate = false;
     fadeOutBlocksThen(() => onResizeImmediate());
-    window.setTimeout(() => onScroll(), filterScrollDelayMs);
+    window.setTimeout(applyInitialScrollUpdate, filterScrollDelayMs);
     syncUrl();
   }
 
@@ -314,6 +344,14 @@ export function createGridList(config: GridConfig) {
     gridEl.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onWindowResize);
     window.addEventListener('popstate', onPopstate);
+
+    supportsScrollEnd = 'onscrollend' in window;
+
+    if(supportsScrollEnd) {
+      gridEl.addEventListener('scrollend', onScrollEnd);
+    } else {
+      gridEl.addEventListener('scroll', onScrollEndFallback, { passive: true });
+    }
   }
 
   function destroy() {
@@ -321,6 +359,12 @@ export function createGridList(config: GridConfig) {
     window.removeEventListener('resize', onWindowResize);
     window.removeEventListener('popstate', onPopstate);
 
+    if(supportsScrollEnd) {
+      gridEl.removeEventListener('scrollend', onScrollEnd);
+    } else {
+      if(scrollEndTimeoutId) window.clearTimeout(scrollEndTimeoutId);
+      gridEl.removeEventListener('scroll', onScrollEndFallback);
+    }
     // Clear any pending timers
     if (resizeDebounceTimer !== null) {
       window.clearTimeout(resizeDebounceTimer);
@@ -338,7 +382,7 @@ export function createGridList(config: GridConfig) {
     initFromUrl();
     renderTagChips();
     delayFrames(initialResizeDelayFrames, () => onResizeImmediate());
-    window.setTimeout(() => onScroll(), initialScrollDelayMs);
+    window.setTimeout(applyInitialScrollUpdate, initialScrollDelayMs);
   }
 
   return { init, destroy, setItems };
