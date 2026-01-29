@@ -208,14 +208,14 @@
   & .tags > .tag {
     color: var(--tag-header-text-color);
     background-color: var(--tag-header-background-color);
-    &:hover {
+    /* &:hover {
       background-color: var(--tag-header-hover-background-color);
       color: var(--tag-header-hover-text-color);
     }
     &.active {
       background-color: var(--tag-header-active-background-color);
       color: var(--tag-header-active-text-color);
-    }
+    } */
   }
 }
 

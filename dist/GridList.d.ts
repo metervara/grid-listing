@@ -2,12 +2,12 @@ import type { GridConfig, GridItem } from './types';
 type ListEvents = {
     "scroll:start": void;
     "scroll:end": {
-        aboveHeader: number;
-        belowHeader: number;
+        aboveHeader: number | undefined;
+        belowHeader: number | undefined;
     };
     "initial:scroll:end": {
-        aboveHeader: number;
-        belowHeader: number;
+        aboveHeader: number | undefined;
+        belowHeader: number | undefined;
     };
 };
 export declare function createGridList(config: GridConfig): {

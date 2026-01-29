@@ -4,8 +4,8 @@ import { createEvents } from './createEvents';
 
 type ListEvents = {
   "scroll:start": void;
-  "scroll:end": { aboveHeader: number; belowHeader: number };
-  "initial:scroll:end": { aboveHeader: number; belowHeader: number };
+  "scroll:end": { aboveHeader: number | undefined; belowHeader: number | undefined };
+  "initial:scroll:end": { aboveHeader: number | undefined; belowHeader: number | undefined };
 };
 
 export function createGridList(config: GridConfig) {
@@ -13,7 +13,7 @@ export function createGridList(config: GridConfig) {
   const events = createEvents<ListEvents>();
   // === State as local variables ===
   const gridEl = config.gridEl;
-  const headerEl = config.headerEl ?? null;
+  // const headerEl = config.headerEl ?? null;
   const measureViewportEl = config.measureViewportEl ?? null;
 
   const desiredBlockSize = config.desiredBlockSize ?? { width: 400, height: 300 };
@@ -26,12 +26,12 @@ export function createGridList(config: GridConfig) {
 
   const initialResizeDelayFrames = config.initialResizeDelayFrames ?? 2;
   const initialScrollDelayMs = config.initialScrollDelayMs ?? 1750;
-  const filterScrollDelayMs = config.filterScrollDelayMs ?? 400;
+  // const filterScrollDelayMs = config.filterScrollDelayMs ?? 400;
 
   let items: GridItem[] = [];
-  let allTags: string[] = [];
-  const activeTags = new Set<string>();
-  let tagChipsEl: HTMLDivElement | null = null;
+  // let allTags: string[] = [];
+  // const activeTags = new Set<string>();
+  // let tagChipsEl: HTMLDivElement | null = null;
 
   let hasDoneInitialScrollUpdate = false;
   let hasDoneInitialResize = false;
@@ -48,8 +48,8 @@ export function createGridList(config: GridConfig) {
 
   // Handler for popstate (needs to be stored for cleanup)
   function onPopstate() {
-    initFromUrl();
-    renderTagChips();
+    // initFromUrl();
+    // renderTagChips();
     fadeOutBlocksThen(() => onResizeImmediate());
   }
 
@@ -91,13 +91,13 @@ export function createGridList(config: GridConfig) {
     spacerBlock.className = 'row-spacer col-0';
     gridEl.appendChild(spacerBlock);
 
-    const filtered = items.filter(i => {
-      if (activeTags.size === 0) return true;
-      const tags = i.tags || [];
-      return tags.some(t => activeTags.has(t));
-    });
+    // const filtered = items.filter(i => {
+    //   if (activeTags.size === 0) return true;
+    //   const tags = i.tags || [];
+    //   return tags.some(t => activeTags.has(t));
+    // });
 
-    filtered.forEach((item, index) => {
+    items.forEach((item, index) => {
       const row = Math.floor(index / state.cols);
       const column = index % state.cols;
       const card = createCard(item);
@@ -116,7 +116,7 @@ export function createGridList(config: GridConfig) {
       gridEl.appendChild(card);
     });
 
-    const totalRows = Math.ceil(filtered.length / state.cols) + 1; // +1 for the header row
+    const totalRows = Math.ceil(items.length / state.cols) + 1; // +1 for the header row
     for (let i = 0; i < totalRows; i++) {
       const snapBlock = document.createElement('div');
       snapBlock.className = 'snap-block';
@@ -138,10 +138,10 @@ export function createGridList(config: GridConfig) {
       <div class="content block-border">
         <div class="info">
           <h3>${title}</h3>
-        </div>
-        <div class="tags">
-          ${tags.map(t => `<button class="tag${activeTags.has(t) ? ' active' : ''}" data-tag="${t}">${t}</button>`).join('')}
-        </div>
+          </div>
+          <div class="tags">
+            ${tags.map(t => `<div class="tag" data-tag="${t}">${t}</div>`).join('')}
+          </div>
       </div>
       <svg class="checker-border" xmlns="http://www.w3.org/2000/svg">
         <rect class="dash black" />
@@ -153,14 +153,14 @@ export function createGridList(config: GridConfig) {
         window.location.href = item.href!;
       });
     }
-    card.querySelectorAll<HTMLButtonElement>('.tag').forEach(tEl => {
-      tEl.addEventListener('click', (ev: MouseEvent) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        const tag = tEl.getAttribute('data-tag');
-        if (tag) toggleTag(tag);
-      });
-    });
+    // card.querySelectorAll<HTMLButtonElement>('.tag').forEach(tEl => {
+    //   tEl.addEventListener('click', (ev: MouseEvent) => {
+    //     ev.preventDefault();
+    //     ev.stopPropagation();
+    //     const tag = tEl.getAttribute('data-tag');
+    //     if (tag) toggleTag(tag);
+    //   });
+    // });
     return card;
   }
 
@@ -171,7 +171,7 @@ export function createGridList(config: GridConfig) {
     const scrolledRows = Math.round(gridEl.scrollTop / rowSpan);
     const lastRow = scrolledRows + state.rows - 2; // we subtract one for index starting at 0 and one for teh headerrow
     const headerAbsoluteRow = scrolledRows + headerRowIndex;
-    console.log(`top row: ${scrolledRows}, last row: ${lastRow}`);
+    // console.log(`top row: ${scrolledRows}, last row: ${lastRow}`);
 
     return {
       aboveHeader: headerAbsoluteRow - 1 >= scrolledRows && headerAbsoluteRow - 1 <= lastRow ? headerAbsoluteRow - 1 : undefined,
@@ -284,6 +284,7 @@ export function createGridList(config: GridConfig) {
   }
 
   // === Tags & URL ===
+  /*
   function renderTagChips() {
     if (!tagChipsEl) return;
     tagChipsEl.innerHTML = '';
@@ -302,7 +303,9 @@ export function createGridList(config: GridConfig) {
       tagChipsEl!.appendChild(chip);
     });
   }
+  */
 
+  /*
   function toggleTag(tag: string) {
     if (activeTags.has(tag)) activeTags.delete(tag);
     else activeTags.add(tag);
@@ -312,6 +315,7 @@ export function createGridList(config: GridConfig) {
     window.setTimeout(applyInitialScrollUpdate, filterScrollDelayMs);
     syncUrl();
   }
+  */
 
   function fadeOutBlocksThen(callback: () => void) {
     const blocks = Array.from(gridEl.querySelectorAll<HTMLDivElement>('.block'));
@@ -341,6 +345,7 @@ export function createGridList(config: GridConfig) {
     }, total);
   }
 
+  /*
   function syncUrl() {
     const params = new URLSearchParams(location.search);
     const tags = Array.from(activeTags);
@@ -357,16 +362,17 @@ export function createGridList(config: GridConfig) {
     const tags = params.get('tags');
     if (tags) tags.split(',').filter(Boolean).forEach(t => activeTags.add(t));
   }
+    */
 
   // === Public API ===
   function init() {
     
     // Ensure header has a tag chips container
-    if (headerEl) {
-      tagChipsEl = document.createElement('div');
-      tagChipsEl.className = 'tags';
-      headerEl.appendChild(tagChipsEl);
-    }
+    // if (headerEl) {
+    //   tagChipsEl = document.createElement('div');
+    //   tagChipsEl.className = 'tags';
+    //   headerEl.appendChild(tagChipsEl);
+    // }
 
     // Set CSS variables that must be in sync with JS
     syncCssVars();
@@ -411,9 +417,9 @@ export function createGridList(config: GridConfig) {
 
   function setItems(newItems: GridItem[]) {
     items = newItems;
-    allTags = Array.from(new Set(items.flatMap(i => i.tags || []))).sort((a, b) => a.localeCompare(b));
-    initFromUrl();
-    renderTagChips();
+    // allTags = Array.from(new Set(items.flatMap(i => i.tags || []))).sort((a, b) => a.localeCompare(b));
+    // initFromUrl();
+    // renderTagChips();
     delayFrames(initialResizeDelayFrames, () => onResizeImmediate());
     window.setTimeout(applyInitialScrollUpdate, initialScrollDelayMs);
   }
