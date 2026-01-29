@@ -11,6 +11,7 @@ const grid = createGridList({
   measureViewportEl: measureEl,
   desiredBlockSize: { width: 400, height: 300 },
   gap: 10,
+  additionalSpacerRows: true,
 });
 
 grid.init();

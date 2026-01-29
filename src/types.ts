@@ -27,6 +27,9 @@ export type GridConfig = {
   // Init delays
   initialResizeDelayFrames?: number;
   initialScrollDelayMs?: number;
+
+  // Additional spacer rows - if all rows should cone into contact with the header row, to display information there
+  additionalSpacerRows?: boolean;
 };
 
 export type GridState = {

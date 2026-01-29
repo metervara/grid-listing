@@ -26,6 +26,8 @@ export function createGridList(config: GridConfig) {
   const initialResizeDelayFrames = config.initialResizeDelayFrames ?? 2;
   const initialScrollDelayMs = config.initialScrollDelayMs ?? 1750;
 
+  const additionalSpacerRows: boolean = config.additionalSpacerRows ?? false;
+
   let items: GridItem[] = [];
 
   let hasDoneInitialScrollUpdate = false;
@@ -103,7 +105,21 @@ export function createGridList(config: GridConfig) {
       gridEl.appendChild(card);
     });
 
-    const totalRows = Math.ceil(items.length / state.cols) + 1; // +1 for the header row
+    let totalRows = Math.ceil(items.length / state.cols) + 1;
+    // Add additional spacer rows if there are more rows below the header than the grid has rows
+    // This is to allow all rows to 'cone into contact' with the header row, and become active rows. 
+    // Active rows are used to trigger the mini descritions to appear (External implementation)
+    if(additionalSpacerRows) {
+      const visibleRowsBelowHeader = state.rows - (headerRowIndex + 1);
+      const additionalSpacerRowsCount = Math.max(0, visibleRowsBelowHeader - 1);
+      for (let i = 0; i < additionalSpacerRowsCount; i++) {
+        const spacerBlock = document.createElement('div');
+        spacerBlock.className = `row-spacer col-${i + totalRows}`;
+        gridEl.appendChild(spacerBlock);
+      }
+      totalRows += additionalSpacerRowsCount; // +1 for the header row
+    }
+
     for (let i = 0; i < totalRows; i++) {
       const snapBlock = document.createElement('div');
       snapBlock.className = 'snap-block';

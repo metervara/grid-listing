@@ -20,6 +20,7 @@ export type GridConfig = {
     fadeStaggerStepMs?: number;
     initialResizeDelayFrames?: number;
     initialScrollDelayMs?: number;
+    additionalSpacerRows?: boolean;
 };
 export type GridState = {
     cols: number;
