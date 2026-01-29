@@ -219,6 +219,12 @@ export function createGridList(config: GridConfig) {
       hasDoneInitialResize = true;
       document.body.classList.add('layout-ready');
     }
+
+    if (hasDoneInitialScrollUpdate) {
+      setTimeout(() => {
+        events.emit("initial:scroll:end", getActiveRows());
+      }, 500);
+    }
   }
 
   function onWindowResize() {
@@ -244,6 +250,11 @@ export function createGridList(config: GridConfig) {
         if (hasDoneInitialScrollUpdate) updateAboveHeaderClasses();
       }
       resizeDebounceTimer = null;
+      if (hasDoneInitialScrollUpdate) {
+        setTimeout(() => {
+          events.emit("initial:scroll:end", getActiveRows());
+        }, 500);
+      }
     }, 400);
   }
 
