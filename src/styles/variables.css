@@ -24,7 +24,7 @@
   --default-font-weight: 400;
 
   --tag-text-color: hsl(50, 80%, 90%); /* pale yellow/cream */
-  --tag-background-color: hsl(240, 73%, 47%); /* deep blue/indigo */
+  --tag-background-color: hsl(0, 0%, 0%);; /* deep blue/indigo */
 
   --tag-active-background-color: var(--header-sub-color);
   --tag-active-text-color: hsl(0, 0%, 0%); /* black for contrast */
