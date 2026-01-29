@@ -32,6 +32,16 @@
   padding-top: 20px;
 
   & .tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 400;
+    font-style: normal;
+    display: inline-block;
+    padding: 8px 10px;
+    font-size: 12px;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    
     pointer-events: auto;
     cursor: pointer;
     color: var(--tag-text-color);
@@ -41,14 +51,14 @@
 
     transition: background-color 150ms linear, color 150ms linear;
 
-    &:hover {
+    /* &:hover {
       background-color: var(--tag-hover-background-color);
       color: var(--tag-hover-text-color);
     }
     &.active {
       background-color: var(--tag-active-background-color);
       color: var(--tag-active-text-color);
-    }
+    } */
   }
 }
 

@@ -8,7 +8,6 @@ const measureEl = document.getElementById('measure')!;
 
 const grid = createGridList({
   gridEl,
-  // headerEl,
   measureViewportEl: measureEl,
   desiredBlockSize: { width: 400, height: 300 },
   gap: 10,

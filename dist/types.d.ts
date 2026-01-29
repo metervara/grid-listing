@@ -9,7 +9,6 @@ export type GridItem = {
 };
 export type GridConfig = {
     gridEl: HTMLElement;
-    headerEl?: HTMLElement | null;
     measureViewportEl?: HTMLElement | null;
     desiredBlockSize?: {
         width: number;
@@ -21,7 +20,6 @@ export type GridConfig = {
     fadeStaggerStepMs?: number;
     initialResizeDelayFrames?: number;
     initialScrollDelayMs?: number;
-    filterScrollDelayMs?: number;
 };
 export type GridState = {
     cols: number;

@@ -10,7 +10,6 @@ export type GridItem = {
 
 export type GridConfig = {
   gridEl: HTMLElement;
-  headerEl?: HTMLElement | null;
   measureViewportEl?: HTMLElement | null;
 
   // Layout
@@ -28,7 +27,6 @@ export type GridConfig = {
   // Init delays
   initialResizeDelayFrames?: number;
   initialScrollDelayMs?: number;
-  filterScrollDelayMs?: number;
 };
 
 export type GridState = {
