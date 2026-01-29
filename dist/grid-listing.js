@@ -1,190 +1,225 @@
-const tt = (s, o, u, v, n, r) => {
-  const S = Math.max(1, Math.ceil((s + n) / (u * r + n))), N = Math.max(S, Math.floor((s + n) / (u / r + n))), w = Math.max(1, Math.ceil((o + n) / (v * r + n))), I = Math.max(w, Math.floor((o + n) / (v / r + n))), x = n > 0 ? Math.floor(s / n) + 1 : Number.POSITIVE_INFINITY, R = n > 0 ? Math.floor(o / n) + 1 : Number.POSITIVE_INFINITY, k = Math.max(1, Math.floor(s)), $ = Math.max(1, Math.floor(o)), h = Math.min(N, x, k), p = Math.min(I, R, $);
-  return { cMin: S, cMax: h, rMin: w, rMax: p };
-}, et = (s, o, u, v, n, r = {}) => {
-  const S = r.weightSize ?? 1, N = r.weightAR ?? 1, w = r.alpha ?? 1.5, I = u / v, x = tt(s, o, u, v, n, w), R = 1, k = 1, $ = Math.min(x.cMax, r.maxCols ?? Number.POSITIVE_INFINITY), h = Math.min(x.rMax, r.maxRows ?? Number.POSITIVE_INFINITY);
-  let p = null;
-  const T = (d, l) => {
-    if (d < R || l < k || d > $ || l > h) return;
-    const M = s - (d - 1) * n, c = o - (l - 1) * n;
-    if (M <= 0 || c <= 0) return;
-    const y = M / d, g = c / l;
-    if (r.integerBlockSize && (!Number.isInteger(y) || !Number.isInteger(g)) || y < u / w || y > u * w || g < v / w || g > v * w) return;
-    const L = Math.hypot((y - u) / u, (g - v) / v), z = Math.abs(y / g - I) / I, D = S * L + N * z;
-    (!p || D < p.score) && (p = { width: y, height: g, cols: d, rows: l, score: D, sizeError: L, arError: z });
+const lt = (a, h, e, p, n, l) => {
+  const i = Math.max(1, Math.ceil((a + n) / (e * l + n))), x = Math.max(i, Math.floor((a + n) / (e / l + n))), y = Math.max(1, Math.ceil((h + n) / (p * l + n))), I = Math.max(y, Math.floor((h + n) / (p / l + n))), S = n > 0 ? Math.floor(a / n) + 1 : Number.POSITIVE_INFINITY, N = n > 0 ? Math.floor(h / n) + 1 : Number.POSITIVE_INFINITY, P = Math.max(1, Math.floor(a)), L = Math.max(1, Math.floor(h)), R = Math.min(x, S, P), u = Math.min(I, N, L);
+  return { cMin: i, cMax: R, rMin: y, rMax: u };
+}, it = (a, h, e, p, n, l = {}) => {
+  const i = l.weightSize ?? 1, x = l.weightAR ?? 1, y = l.alpha ?? 1.5, I = e / p, S = lt(a, h, e, p, n, y), N = 1, P = 1, L = Math.min(S.cMax, l.maxCols ?? Number.POSITIVE_INFINITY), R = Math.min(S.rMax, l.maxRows ?? Number.POSITIVE_INFINITY);
+  let u = null;
+  const k = (c, M) => {
+    if (c < N || M < P || c > L || M > R) return;
+    const g = a - (c - 1) * n, b = h - (M - 1) * n;
+    if (g <= 0 || b <= 0) return;
+    const r = g / c, f = b / M;
+    if (l.integerBlockSize && (!Number.isInteger(r) || !Number.isInteger(f)) || r < e / y || r > e * y || f < p / y || f > p * y) return;
+    const T = Math.hypot((r - e) / e, (f - p) / p), $ = Math.abs(r / f - I) / I, D = i * T + x * $;
+    (!u || D < u.score) && (u = { width: r, height: f, cols: c, rows: M, score: D, sizeError: T, arError: $ });
   };
-  for (let d = x.cMin; d <= $; d++) {
-    const l = s - (d - 1) * n;
-    if (l <= 0) break;
-    const M = l / d;
-    if (M < u / w || M > u * w) continue;
-    const c = (o + n) / (n + M / I), y = /* @__PURE__ */ new Set();
-    for (let g = -2; g <= 2; g++) {
-      const L = Math.round(c + g);
-      L >= k && L <= h && y.add(L);
+  for (let c = S.cMin; c <= L; c++) {
+    const M = a - (c - 1) * n;
+    if (M <= 0) break;
+    const g = M / c;
+    if (g < e / y || g > e * y) continue;
+    const b = (h + n) / (n + g / I), r = /* @__PURE__ */ new Set();
+    for (let f = -2; f <= 2; f++) {
+      const T = Math.round(b + f);
+      T >= P && T <= R && r.add(T);
     }
-    y.add(x.rMin), y.add(h);
-    for (const g of y) T(d, g);
+    r.add(S.rMin), r.add(R);
+    for (const f of r) k(c, f);
   }
-  if (!p)
-    for (let d = x.cMin; d <= $; d++)
-      for (let l = x.rMin; l <= h; l++) T(d, l);
-  if (!p)
+  if (!u)
+    for (let c = S.cMin; c <= L; c++)
+      for (let M = S.rMin; M <= R; M++) k(c, M);
+  if (!u)
     throw new Error("No feasible grid found with given settings/tolerance.");
-  return p;
-}, ot = (s, o, u, v, n) => {
-  const r = Math.max(1, Math.round(s / u)), S = Math.max(1, Math.round(o / v)), N = s - n * Math.max(0, r - 1), w = o - n * Math.max(0, S - 1), I = N / r, x = w / S;
-  return { width: I, height: x, cols: r, rows: S };
+  return u;
+}, dt = (a, h, e, p, n) => {
+  const l = Math.max(1, Math.round(a / e)), i = Math.max(1, Math.round(h / p)), x = a - n * Math.max(0, l - 1), y = h - n * Math.max(0, i - 1), I = x / l, S = y / i;
+  return { width: I, height: S, cols: l, rows: i };
 };
-function at(s) {
-  const o = s.gridEl, u = s.headerEl ?? null, v = s.measureViewportEl ?? null, n = s.desiredBlockSize ?? { width: 400, height: 300 }, r = s.gap ?? 10, S = s.fadeOutDurationMs ?? 200, N = s.staggerStepMs ?? 75, w = s.fadeStaggerStepMs ?? 50, I = s.initialResizeDelayFrames ?? 2, x = s.initialScrollDelayMs ?? 1750, R = s.filterScrollDelayMs ?? 400;
-  let k = [], $ = [];
-  const h = /* @__PURE__ */ new Set();
-  let p = null, T = !1, d = !1, l = null, M = null, c, y = 0;
-  const g = () => O(), L = () => H(), z = () => {
-    _(), q(), Y(() => V());
-  };
-  function D() {
-    const t = document.documentElement.style;
-    t.setProperty("--block-gap", `${r}px`), t.setProperty("--fade-out-duration", `${S}ms`);
-    const a = Math.max(0, x - 250);
-    t.setProperty("--header-fade-delay", `${a}ms`);
+function ct() {
+  const a = /* @__PURE__ */ new Map();
+  return { on: (n, l) => {
+    let i = a.get(n);
+    return i || a.set(n, i = /* @__PURE__ */ new Set()), i.add(l), () => i.delete(l);
+  }, emit: (n, l) => {
+    const i = a.get(n);
+    i && [...i].forEach((x) => x(l));
+  }, clear: () => a.clear() };
+}
+function ut(a) {
+  const h = ct(), e = a.gridEl, p = a.headerEl ?? null, n = a.measureViewportEl ?? null, l = a.desiredBlockSize ?? { width: 400, height: 300 }, i = a.gap ?? 10, x = a.fadeOutDurationMs ?? 200, y = a.staggerStepMs ?? 75, I = a.fadeStaggerStepMs ?? 50, S = a.initialResizeDelayFrames ?? 2, N = a.initialScrollDelayMs ?? 1750, P = a.filterScrollDelayMs ?? 400;
+  let L = [], R = [];
+  const u = /* @__PURE__ */ new Set();
+  let k = null, c = !1, M = !1, g = null, b = null, r, f = 0, T, $ = null, D = 100, B = !1;
+  function G() {
+    Z(), q(), X(() => U());
   }
-  function U(t, e) {
+  function W() {
+    const t = document.documentElement.style;
+    t.setProperty("--block-gap", `${i}px`), t.setProperty("--fade-out-duration", `${x}ms`);
+    const s = Math.max(0, N - 250);
+    t.setProperty("--header-fade-delay", `${s}ms`);
+  }
+  function Y(t, o) {
     if (t <= 0) {
-      e();
+      o();
       return;
     }
-    requestAnimationFrame(() => U(t - 1, e));
+    requestAnimationFrame(() => Y(t - 1, o));
   }
-  function B(t, e) {
-    c = et(t, e, n.width, n.height, r), y = 1;
-    const a = document.documentElement.style;
-    a.setProperty("--block-width", `${c.width}px`), a.setProperty("--block-height", `${c.height}px`), a.setProperty("--cols", String(c.cols)), a.setProperty("--rows", String(c.rows)), a.setProperty("--block-gap", `${r}px`), a.setProperty("--header-row", `${y}`);
+  function C(t, o) {
+    r = it(t, o, l.width, l.height, i), f = 1;
+    const s = document.documentElement.style;
+    s.setProperty("--block-width", `${r.width}px`), s.setProperty("--block-height", `${r.height}px`), s.setProperty("--cols", String(r.cols)), s.setProperty("--rows", String(r.rows)), s.setProperty("--block-gap", `${i}px`), s.setProperty("--header-row", `${f}`);
   }
-  function C() {
-    if (!c) return;
-    o.innerHTML = "";
+  function A() {
+    if (!r) return;
+    e.innerHTML = "";
     const t = document.createElement("div");
-    t.className = "row-spacer col-0", o.appendChild(t);
-    const e = k.filter((f) => h.size === 0 ? !0 : (f.tags || []).some((E) => h.has(E)));
-    e.forEach((f, i) => {
-      const E = Math.floor(i / c.cols), m = i % c.cols, b = j(f);
-      b.dataset.row = `${E}`, b.dataset.column = `${m}`, b.classList.add(`row-${E}`), b.classList.add(`col-${m}`);
-      const Z = (E % 2 === 0 ? m : c.cols - 1 - m) * N, W = i * w;
-      b.style.transitionDelay = `${Z}ms`, b.style.setProperty("--fade-delay", `${W}ms`), b.classList.add("fade-in"), o.appendChild(b);
+    t.className = "row-spacer col-0", e.appendChild(t);
+    const o = L.filter((m) => u.size === 0 ? !0 : (m.tags || []).some((v) => u.has(v)));
+    o.forEach((m, d) => {
+      const v = Math.floor(d / r.cols), w = d % r.cols, E = tt(m);
+      E.dataset.row = `${v}`, E.dataset.column = `${w}`, E.classList.add(`row-${v}`), E.classList.add(`col-${w}`);
+      const at = (v % 2 === 0 ? w : r.cols - 1 - w) * y, rt = d * I;
+      E.style.transitionDelay = `${at}ms`, E.style.setProperty("--fade-delay", `${rt}ms`), E.classList.add("fade-in"), e.appendChild(E);
     });
-    const a = Math.ceil(e.length / c.cols) + 1;
-    for (let f = 0; f < a; f++) {
-      const i = document.createElement("div");
-      i.className = "snap-block", i.dataset.row = `${f}`, i.style.top = `${f * (c.height + r)}px`, o.appendChild(i);
+    const s = Math.ceil(o.length / r.cols) + 1;
+    for (let m = 0; m < s; m++) {
+      const d = document.createElement("div");
+      d.className = "snap-block", d.dataset.row = `${m}`, d.style.top = `${m * (r.height + i)}px`, e.appendChild(d);
     }
   }
-  function j(t) {
-    const e = t.title, f = (Array.isArray(t.thumbnails) ? t.thumbnails : [])[0], i = (t.tags || []).sort((m, b) => m.localeCompare(b)), E = document.createElement("div");
-    return E.className = "block", E.innerHTML = `
-      ${f ? `<div class="media"><img class="thumb" src="${f}" alt="${e}"></div>` : ""}
+  function tt(t) {
+    const o = t.title, m = (Array.isArray(t.thumbnails) ? t.thumbnails : [])[0], d = (t.tags || []).sort((w, E) => w.localeCompare(E)), v = document.createElement("div");
+    return v.className = "block", v.innerHTML = `
+      ${m ? `<div class="media"><img class="thumb" src="${m}" alt="${o}"></div>` : ""}
       <div class="content block-border">
         <div class="info">
-          <h3>${e}</h3>
+          <h3>${o}</h3>
         </div>
         <div class="tags">
-          ${i.map((m) => `<button class="tag${h.has(m) ? " active" : ""}" data-tag="${m}">${m}</button>`).join("")}
+          ${d.map((w) => `<button class="tag${u.has(w) ? " active" : ""}" data-tag="${w}">${w}</button>`).join("")}
         </div>
       </div>
       <svg class="checker-border" xmlns="http://www.w3.org/2000/svg">
         <rect class="dash black" />
         <rect class="dash white" />
       </svg>
-    `, t.href && E.addEventListener("click", () => {
+    `, t.href && v.addEventListener("click", () => {
       window.location.href = t.href;
-    }), E.querySelectorAll(".tag").forEach((m) => {
-      m.addEventListener("click", (b) => {
-        b.preventDefault(), b.stopPropagation();
-        const A = m.getAttribute("data-tag");
-        A && G(A);
+    }), v.querySelectorAll(".tag").forEach((w) => {
+      w.addEventListener("click", (E) => {
+        E.preventDefault(), E.stopPropagation();
+        const F = w.getAttribute("data-tag");
+        F && Q(F);
       });
-    }), E;
+    }), v;
   }
-  function O() {
-    P(), T = !0;
+  function _() {
+    const t = r.height + i, s = Math.round(e.scrollTop / t) + f;
+    return {
+      aboveHeader: s - 1,
+      belowHeader: s + 1
+    };
+  }
+  function j() {
+    z(), c = !0, setTimeout(() => {
+      const t = _();
+      h.emit("initial:scroll:end", t);
+    }, 500);
+  }
+  function H() {
+    B || h.emit("scroll:start", void 0), B = !0, z();
   }
   function V() {
-    const t = v?.getBoundingClientRect();
+    if (B) {
+      const t = _();
+      h.emit("scroll:end", t);
+    }
+    B = !1;
+  }
+  function J() {
+    $ && window.clearTimeout($), $ = window.setTimeout(() => {
+      V();
+    }, D);
+  }
+  function U() {
+    const t = n?.getBoundingClientRect();
     if (!t) {
       console.warn("[grid] measureViewport element not found");
       return;
     }
-    B(t.width, t.height), C(), T && P(), o && o.scrollHeight > o.clientHeight && (B(o.clientWidth, t.height), C(), T && P()), d || (d = !0, document.body.classList.add("layout-ready"));
+    C(t.width, t.height), A(), c && z(), e && e.scrollHeight > e.clientHeight && (C(e.clientWidth, t.height), A(), c && z()), M || (M = !0, document.body.classList.add("layout-ready"));
   }
-  function H() {
-    const t = v?.getBoundingClientRect();
+  function K() {
+    const t = n?.getBoundingClientRect();
     if (!t) return;
-    B(t.width, t.height), o.innerHTML = "";
-    const e = document.createElement("div");
-    e.className = "row-spacer col-0", o.appendChild(e), l !== null && window.clearTimeout(l), l = window.setTimeout(() => {
-      C(), T && P(), o && o.scrollHeight > o.clientHeight && (B(o.clientWidth, t.height), C(), T && P()), l = null;
+    C(t.width, t.height), e.innerHTML = "";
+    const o = document.createElement("div");
+    o.className = "row-spacer col-0", e.appendChild(o), g !== null && window.clearTimeout(g), g = window.setTimeout(() => {
+      A(), c && z(), e && e.scrollHeight > e.clientHeight && (C(e.clientWidth, t.height), A(), c && z()), g = null;
     }, 400);
   }
-  function P() {
-    if (!c) return;
-    const t = c.height + r, a = Math.round(o.scrollTop / t) + y;
-    o.querySelectorAll(".block").forEach((i) => {
-      parseInt(i.dataset.row || "0", 10) < a ? i.classList.add("above-header") : i.classList.remove("above-header");
+  function z() {
+    if (!r) return;
+    const t = r.height + i, s = Math.round(e.scrollTop / t) + f;
+    e.querySelectorAll(".block").forEach((d) => {
+      parseInt(d.dataset.row || "0", 10) < s ? d.classList.add("above-header") : d.classList.remove("above-header");
     });
   }
   function q() {
-    p && (p.innerHTML = "", $.forEach((t) => {
-      const e = document.createElement("button");
-      e.type = "button", e.className = "tag", e.textContent = t, e.dataset.tag = t, h.has(t) && e.classList.add("active"), e.addEventListener("click", (a) => {
-        a.preventDefault(), a.stopPropagation(), G(t);
-      }), p.appendChild(e);
+    k && (k.innerHTML = "", R.forEach((t) => {
+      const o = document.createElement("button");
+      o.type = "button", o.className = "tag", o.textContent = t, o.dataset.tag = t, u.has(t) && o.classList.add("active"), o.addEventListener("click", (s) => {
+        s.preventDefault(), s.stopPropagation(), Q(t);
+      }), k.appendChild(o);
     }));
   }
-  function G(t) {
-    h.has(t) ? h.delete(t) : h.add(t), q(), T = !1, Y(() => V()), window.setTimeout(() => O(), R), J();
+  function Q(t) {
+    u.has(t) ? u.delete(t) : u.add(t), q(), c = !1, X(() => U()), window.setTimeout(j, P), et();
   }
-  function Y(t) {
-    const e = Array.from(o.querySelectorAll(".block"));
-    if (e.length === 0) {
+  function X(t) {
+    const o = Array.from(e.querySelectorAll(".block"));
+    if (o.length === 0) {
       t();
       return;
     }
-    M !== null && (window.clearTimeout(M), M = null);
-    let a = 0;
-    e.forEach((i) => {
-      const E = parseInt(i.dataset.row || "0", 10), m = parseInt(i.dataset.column || "0", 10), F = (E % 2 === 0 ? m : c.cols - 1 - m) * w;
-      i.style.setProperty("--fade-delay", `${F}ms`), i.classList.add("fade-out"), F > a && (a = F);
+    b !== null && (window.clearTimeout(b), b = null);
+    let s = 0;
+    o.forEach((d) => {
+      const v = parseInt(d.dataset.row || "0", 10), w = parseInt(d.dataset.column || "0", 10), O = (v % 2 === 0 ? w : r.cols - 1 - w) * I;
+      d.style.setProperty("--fade-delay", `${O}ms`), d.classList.add("fade-out"), O > s && (s = O);
     });
-    const f = a + S + 20;
-    M = window.setTimeout(() => {
-      M = null, t();
-    }, f);
+    const m = s + x + 20;
+    b = window.setTimeout(() => {
+      b = null, t();
+    }, m);
   }
-  function J() {
-    const t = new URLSearchParams(location.search), e = Array.from(h);
-    e.length ? t.set("tags", e.join(",")) : t.delete("tags");
-    const a = t.toString(), f = a ? `${location.pathname}?${a}` : location.pathname;
-    history.pushState(null, "", f);
+  function et() {
+    const t = new URLSearchParams(location.search), o = Array.from(u);
+    o.length ? t.set("tags", o.join(",")) : t.delete("tags");
+    const s = t.toString(), m = s ? `${location.pathname}?${s}` : location.pathname;
+    history.pushState(null, "", m);
   }
-  function _() {
-    h.clear();
-    const e = new URLSearchParams(location.search).get("tags");
-    e && e.split(",").filter(Boolean).forEach((a) => h.add(a));
+  function Z() {
+    u.clear();
+    const o = new URLSearchParams(location.search).get("tags");
+    o && o.split(",").filter(Boolean).forEach((s) => u.add(s));
   }
-  function K() {
-    u && (p = document.createElement("div"), p.className = "tags", u.appendChild(p)), D(), o.addEventListener("scroll", g, { passive: !0 }), window.addEventListener("resize", L), window.addEventListener("popstate", z);
+  function ot() {
+    p && (k = document.createElement("div"), k.className = "tags", p.appendChild(k)), W(), e.addEventListener("scroll", H, { passive: !0 }), window.addEventListener("resize", K), window.addEventListener("popstate", G), T = "onscrollend" in window, T ? e.addEventListener("scrollend", V) : e.addEventListener("scroll", J, { passive: !0 });
   }
-  function Q() {
-    o.removeEventListener("scroll", g), window.removeEventListener("resize", L), window.removeEventListener("popstate", z), l !== null && (window.clearTimeout(l), l = null), M !== null && (window.clearTimeout(M), M = null);
+  function nt() {
+    h.clear(), e.removeEventListener("scroll", H), window.removeEventListener("resize", K), window.removeEventListener("popstate", G), T ? e.removeEventListener("scrollend", V) : ($ && window.clearTimeout($), e.removeEventListener("scroll", J)), g !== null && (window.clearTimeout(g), g = null), b !== null && (window.clearTimeout(b), b = null);
   }
-  function X(t) {
-    k = t, $ = Array.from(new Set(k.flatMap((e) => e.tags || []))).sort((e, a) => e.localeCompare(a)), _(), q(), U(I, () => V()), window.setTimeout(() => O(), x);
+  function st(t) {
+    L = t, R = Array.from(new Set(L.flatMap((o) => o.tags || []))).sort((o, s) => o.localeCompare(s)), Z(), q(), Y(S, () => U()), window.setTimeout(j, N);
   }
-  return { init: K, destroy: Q, setItems: X };
+  return { init: ot, destroy: nt, setItems: st, events: h };
 }
 export {
-  at as createGridList,
-  et as findBestBlockSize,
-  ot as findNaiveBlockSize
+  ut as createGridList,
+  it as findBestBlockSize,
+  dt as findNaiveBlockSize
 };

@@ -1,7 +1,16 @@
 import { findBestBlockSize } from './blockSize';
 import type { GridConfig, GridItem, GridState } from './types';
+import { createEvents } from './createEvents';
+
+type ListEvents = {
+  "scroll:start": void;
+  "scroll:end": { aboveHeader: number; belowHeader: number };
+  "initial:scroll:end": { aboveHeader: number; belowHeader: number };
+};
 
 export function createGridList(config: GridConfig) {
+
+  const events = createEvents<ListEvents>();
   // === State as local variables ===
   const gridEl = config.gridEl;
   const headerEl = config.headerEl ?? null;
@@ -155,24 +164,45 @@ export function createGridList(config: GridConfig) {
     return card;
   }
 
+  /* Gets 'active rows' - rows that are visible above and below the header */
+  // TODO: Only return rows that are on screen / viewport (So if the header is at the top, then tehre will be no active rows above the header)
+  function getActiveRows() {
+    const rowSpan = state.height + gap;
+    const scrolledRows = Math.round(gridEl.scrollTop / rowSpan);
+    const lastRow = scrolledRows + state.rows - 2; // we subtract one for index starting at 0 and one for teh headerrow
+    const headerAbsoluteRow = scrolledRows + headerRowIndex;
+    console.log(`top row: ${scrolledRows}, last row: ${lastRow}`);
+
+    return {
+      aboveHeader: headerAbsoluteRow - 1 >= scrolledRows && headerAbsoluteRow - 1 <= lastRow ? headerAbsoluteRow - 1 : undefined,
+      belowHeader: headerAbsoluteRow >= scrolledRows && headerAbsoluteRow <= lastRow ? headerAbsoluteRow : undefined,
+      // belowHeader: headerAbsoluteRow, // + 1 // +1 omitted here since header row is not an actual row
+    };
+  }
+
   // === Event handlers ===
   function applyInitialScrollUpdate() {
     updateAboveHeaderClasses();
     hasDoneInitialScrollUpdate = true;
+    setTimeout(() => {
+      const activeRows = getActiveRows();
+      events.emit("initial:scroll:end", activeRows);
+    }, 500); // Should be same as --duration in css vars + stagger 
   }
 
   function onScroll() {
     if(!isScrolling) {
-      console.log("Scrolling started");
+      events.emit("scroll:start", undefined);
     }
     isScrolling = true;
     updateAboveHeaderClasses();
-    hasDoneInitialScrollUpdate = true;
+    // hasDoneInitialScrollUpdate = true;
   }
 
   function onScrollEnd() {
     if(isScrolling) {
-      console.log("Scrolling ended");
+      const activeRows = getActiveRows();
+      events.emit("scroll:end", activeRows);
     }
     isScrolling = false;
   }
@@ -330,6 +360,7 @@ export function createGridList(config: GridConfig) {
 
   // === Public API ===
   function init() {
+    
     // Ensure header has a tag chips container
     if (headerEl) {
       tagChipsEl = document.createElement('div');
@@ -355,6 +386,8 @@ export function createGridList(config: GridConfig) {
   }
 
   function destroy() {
+    events.clear();
+
     gridEl.removeEventListener('scroll', onScroll);
     window.removeEventListener('resize', onWindowResize);
     window.removeEventListener('popstate', onPopstate);
@@ -385,7 +418,7 @@ export function createGridList(config: GridConfig) {
     window.setTimeout(applyInitialScrollUpdate, initialScrollDelayMs);
   }
 
-  return { init, destroy, setItems };
+  return { init, destroy, setItems, events };
 }
 
 // Type export for consumers

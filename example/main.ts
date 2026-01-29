@@ -8,13 +8,22 @@ const measureEl = document.getElementById('measure')!;
 
 const grid = createGridList({
   gridEl,
-  headerEl,
+  // headerEl,
   measureViewportEl: measureEl,
   desiredBlockSize: { width: 400, height: 300 },
   gap: 10,
 });
 
 grid.init();
+grid.events.on("scroll:start", () => {
+  console.log("Scrolling started");
+});
+grid.events.on("scroll:end", ({ aboveHeader, belowHeader }) => {
+  console.log("Scrolling ended", { aboveHeader, belowHeader });
+});
+grid.events.on("initial:scroll:end", ({ aboveHeader, belowHeader }) => {
+  console.log("Initial scroll ended", { aboveHeader, belowHeader });
+});
 
 // Convert manifest items to grid items
 const items: GridItem[] = gridManifest.items.map((item) => ({
