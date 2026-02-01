@@ -2,6 +2,7 @@ export type GridItem = {
   id?: string;
   title?: string;
   description?: string;
+  short?: string;
   tags?: string[];
   thumbnail?: string; // full or relative URL
   href?: string; // if provided, clicking the card navigates here

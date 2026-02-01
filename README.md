@@ -41,11 +41,12 @@ The `setItems` method accepts an array of `GridItem` objects:
 ```typescript
 type GridItem = {
   id?: string;
-  title: string;
+  title?: string;
   description?: string;
+  short?: string;
   tags?: string[];
-  thumbnail?: string;  // Image URL
-  href?: string;          // Click navigation URL
+  thumbnail?: string; // full or relative URL
+  href?: string; // if provided, clicking the card navigates here
   group?: string;
 };
 ```

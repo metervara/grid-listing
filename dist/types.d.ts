@@ -2,6 +2,7 @@ export type GridItem = {
     id?: string;
     title?: string;
     description?: string;
+    short?: string;
     tags?: string[];
     thumbnail?: string;
     href?: string;
