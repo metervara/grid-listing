@@ -1,12 +1,14 @@
 export type GridItem = {
     id?: string;
-    title: string;
+    title?: string;
     description?: string;
     tags?: string[];
-    thumbnails?: string[];
+    thumbnail?: string;
     href?: string;
     group?: string;
 };
+/** Custom card renderer. Return a div with class "block"; layout classes and click handling are applied by the grid. */
+export type RenderCardFn = (item: GridItem) => HTMLDivElement;
 export type GridConfig = {
     gridEl: HTMLElement;
     measureViewportEl?: HTMLElement | null;
@@ -21,6 +23,8 @@ export type GridConfig = {
     initialResizeDelayFrames?: number;
     initialScrollDelayMs?: number;
     additionalSpacerRows?: boolean;
+    /** Custom card renderer. If provided, this is used instead of the default card markup (media, title, tags). */
+    renderCard?: RenderCardFn;
 };
 export type GridState = {
     cols: number;
