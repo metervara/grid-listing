@@ -95,10 +95,11 @@ export function createGridList(config: GridConfig) {
     spacerBlock.className = 'row-spacer col-0';
     gridEl.appendChild(spacerBlock);
 
+    const renderCard = config.renderCard ?? createCard;
     items.forEach((item, index) => {
       const row = Math.floor(index / state.cols);
       const column = index % state.cols;
-      const card = createCard(item);
+      const card = renderCard(item);
       card.dataset.row = `${row}`;
       card.dataset.column = `${column}`;
       card.classList.add(`row-${row}`);
@@ -142,21 +143,19 @@ export function createGridList(config: GridConfig) {
   }
 
   function createCard(item: GridItem): HTMLDivElement {
-    const title = item.title;
-    const thumbnails = Array.isArray(item.thumbnails) ? item.thumbnails : [];
-    const primaryThumb = thumbnails[0];
+    const title = item.title ?? '';
+    const thumbnail = item.thumbnail;
     const tags = (item.tags || []).sort((a, b) => a.localeCompare(b));
     const card = document.createElement('div');
     card.className = 'block';
+    const titleHtml = title ? `<div class="info"><h3>${title}</h3></div>` : '';
     card.innerHTML = `
-      ${primaryThumb ? `<div class="media"><img class="thumb" src="${primaryThumb}" alt="${title}"></div>` : ''}
+      ${thumbnail ? `<div class="media"><img class="thumb" src="${thumbnail}" alt="${title}"></div>` : ''}
       <div class="content block-border">
-        <div class="info">
-          <h3>${title}</h3>
-          </div>
-          <div class="tags">
-            ${tags.map(t => `<div class="tag" data-tag="${t}">${t}</div>`).join('')}
-          </div>
+        ${titleHtml}
+        <div class="tags">
+          ${tags.map(t => `<div class="tag" data-tag="${t}">${t}</div>`).join('')}
+        </div>
       </div>
       <svg class="checker-border" xmlns="http://www.w3.org/2000/svg">
         <rect class="dash black" />

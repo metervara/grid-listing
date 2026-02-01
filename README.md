@@ -44,7 +44,7 @@ type GridItem = {
   title: string;
   description?: string;
   tags?: string[];
-  thumbnails?: string[];  // Image URLs
+  thumbnail?: string;  // Image URL
   href?: string;          // Click navigation URL
   group?: string;
 };
@@ -56,7 +56,7 @@ type GridItem = {
 // Static array
 grid.setItems([
   { title: 'Project A', tags: ['webgl', 'art'], href: '/projects/a/' },
-  { title: 'Project B', tags: ['tool'], thumbnails: ['/img/b.jpg'] },
+  { title: 'Project B', tags: ['tool'], thumbnail: '/img/b.jpg' },
 ]);
 
 // Fetch from JSON
@@ -134,7 +134,7 @@ grid.setItems(manifest.items.map(item => ({
   title: item.title || item.name,
   description: item.description,
   tags: item.tags,
-  thumbnails: item.thumbnail ? [`/${item.thumbnail}`] : [],
+  thumbnail: item.thumbnail ? `/${item.thumbnail}` : undefined,
   href: item.href,
   group: item.group,
 })));
