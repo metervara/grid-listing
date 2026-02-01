@@ -47,4 +47,6 @@
   --speed: 500ms;   /* hover animation duration */
   --dash-color-1: #000;
   --dash-color-2: #fff;
+
+  --block-border-width: 5px;
 }

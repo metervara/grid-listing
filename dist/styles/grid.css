@@ -22,7 +22,7 @@
 /* Grid-specific styles */
 .block-border {
   transition: border-color var(--hover-transition-duration) linear;
-  border: 5px solid var(--block-border-color);
+  border: var(--block-border-width) solid var(--block-border-color);
 }
 
 .tags {

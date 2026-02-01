@@ -9,6 +9,12 @@ type ListEvents = {
         aboveHeader: number | undefined;
         belowHeader: number | undefined;
     };
+    "grid:rebuild": GridState;
+    "grid:clear": void;
+    "grid:layout:change": {
+        cols: number;
+        rows: number;
+    };
 };
 export declare function createGridList(config: GridConfig): {
     init: () => void;

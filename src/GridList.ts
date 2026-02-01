@@ -6,6 +6,9 @@ type ListEvents = {
   "scroll:start": void;
   "scroll:end": { aboveHeader: number | undefined; belowHeader: number | undefined };
   "initial:scroll:end": { aboveHeader: number | undefined; belowHeader: number | undefined };
+  "grid:rebuild": GridState;
+  "grid:clear": void;
+  "grid:layout:change": { cols: number, rows: number };
 };
 
 export function createGridList(config: GridConfig) {
@@ -68,6 +71,8 @@ export function createGridList(config: GridConfig) {
   }
 
   function setLayout(width: number, height: number) {
+    const prevCol = state?.cols || -1;
+    const prevRow = state?.rows || -1;
     state = findBestBlockSize(width, height, desiredBlockSize.width, desiredBlockSize.height, gap);
     headerRowIndex = 1;
     const root = document.documentElement.style;
@@ -77,6 +82,10 @@ export function createGridList(config: GridConfig) {
     root.setProperty('--rows', String(state.rows));
     root.setProperty('--block-gap', `${gap}px`);
     root.setProperty('--header-row', `${headerRowIndex}`);
+
+    if(prevCol !== state?.cols || prevRow !== state?.rows) {
+      events.emit("grid:layout:change", { cols: state.cols, rows: state.rows });
+    }
   }
 
   function rebuildGrid() {
@@ -127,6 +136,9 @@ export function createGridList(config: GridConfig) {
       snapBlock.style.top = `${i * (state.height + gap)}px`;
       gridEl.appendChild(snapBlock);
     }
+
+    events.emit("grid:rebuild", state);
+    isScrolling = false;
   }
 
   function createCard(item: GridItem): HTMLDivElement {
@@ -247,12 +259,14 @@ export function createGridList(config: GridConfig) {
     const rect = measureViewportEl?.getBoundingClientRect();
     if (!rect) return;
 
-    setLayout(rect.width, rect.height);
+    // Clear grid here
+    if (gridEl.hasChildNodes()) {
+      gridEl.innerHTML = '';
+      events.emit("grid:clear", undefined);
+    }
 
-    gridEl.innerHTML = '';
-    const spacerBlock = document.createElement('div');
-    spacerBlock.className = 'row-spacer col-0';
-    gridEl.appendChild(spacerBlock);
+    // Update layout
+    setLayout(rect.width, rect.height);
 
     if (resizeDebounceTimer !== null) {
       window.clearTimeout(resizeDebounceTimer);
