@@ -222,6 +222,21 @@ const grid = createGridList({
 });
 ```
 
+## Example
+
+The `example/` folder is a small site built with the library and the Vite plugin. It has its own Vite config, so use the dedicated scripts rather than `npm run dev`:
+
+```bash
+npm run dev:example    # dev server at http://localhost:5173/
+npm run build:example  # production build into docs/
+```
+
+The build output in `docs/` is committed and published with GitHub Pages
+(Settings → Pages → Deploy from a branch → `main`, folder `/docs`) at
+https://metervara.github.io/grid-listing/. The build uses `/grid-listing/` as
+its base path and copies `example/projects/` into `docs/projects/`, so after
+changing the example, run `npm run build:example` and commit `docs/`.
+
 ## Releasing
 
 1. Make your changes
