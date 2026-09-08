@@ -1,6 +1,6 @@
 # @metervara/grid-listing
 
-Responsive grid listing component with tag filtering and staggered animations.
+Sticky responsive grid listing component with tag filtering and staggered animations.
 
 ## Installation
 
