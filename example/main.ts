@@ -128,7 +128,7 @@ const items: GridItem[] = gridManifest.items.map((item) => ({
   title: item.title ?? item.name,
   description: item.description,
   tags: item.tags,
-  thumbnail: item.thumbnail ? `${import.meta.env.BASE_URL}projects/${item.path}/${item.thumbnail}` : undefined,
+  thumbnail: item.thumbnail ? `${import.meta.env.BASE_URL}projects/${item.thumbnail}` : undefined,
   href: item.href,
   group: item.group,
 }));
